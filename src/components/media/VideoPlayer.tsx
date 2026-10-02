@@ -2,14 +2,11 @@
 import Image from "next/image";
 import { useState } from "react";
 import type { ProjectVideo } from "@/types/project";
-import { safeExternalUrl, videoEmbedUrl } from "@/lib/media";
+import { safeExternalUrl, videoEmbedUrl, videoFileUrl } from "@/lib/media";
 export function VideoPlayer({ video }: { video: ProjectVideo }) {
   const [loaded, setLoaded] = useState(false);
   const embed = videoEmbedUrl(video);
-  const file =
-    video.provider === "file" && (video.url.startsWith("/media/") || safeExternalUrl(video.url))
-      ? video.url
-      : undefined;
+  const file = video.provider === "file" ? videoFileUrl(video.url) : undefined;
   const fallback = safeExternalUrl(video.url) || file;
   return (
     <div className="video-block">

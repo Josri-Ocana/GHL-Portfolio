@@ -1,11 +1,5 @@
+import { siteOrigin } from "@/lib/siteOrigin";
 const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-function getSiteUrl() {
-  if (!configuredUrl) return "http://localhost:3000";
-  const url = new URL(configuredUrl);
-  if (!["http:", "https:"].includes(url.protocol))
-    throw new Error("NEXT_PUBLIC_SITE_URL must be an HTTP(S) URL.");
-  return url.origin;
-}
 
 export const siteConfig = {
   name: "Josri Ocaña",
@@ -13,7 +7,7 @@ export const siteConfig = {
   description:
     "Josri Ocaña builds GoHighLevel CRM systems, workflow automation, funnels, and integrations for service businesses and agencies.",
   location: "Butuan City, Philippines",
-  url: getSiteUrl(),
+  url: siteOrigin(configuredUrl),
   isConfigured: Boolean(configuredUrl),
   // Intentionally unconfigured: existing materials contain conflicting addresses.
   email: "",

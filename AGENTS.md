@@ -16,4 +16,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Preserve the monochrome tokens, readable typography, semantic controls, mobile layouts, and reduced-motion alternatives.
 - Default to Server Components; scope and clean up GSAP effects. Lazy-load video after user activation.
 - Keep changes local to the requested feature. Verify replacements before deleting earlier code or documentation.
+- Use `SECURITY.md` when changing forms, APIs, external integrations, dependencies, headers or deployment.
 - Run lint, typecheck, tests, and production build for meaningful implementation changes.

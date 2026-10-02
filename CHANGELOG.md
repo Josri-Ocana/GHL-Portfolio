@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-02 — Security and quality checkpoint
+
+- Added enforced CSP framing/object/base restrictions and a production resource Report-Only policy, preserving existing headers and Vercel-owned HSTS.
+- Hardened external/media URLs and public origin configuration; added five security regression tests, concise SECURITY.md and a contextual AGENTS.md rule.
+- Audited secrets/history and dependencies, preserved the lockfile/design/motion, and validated lint, typecheck, 15 tests and production build.
+
 ## 2026-10-02 — Final checkpoint for Monday
 
 - Revalidated lint, strict typecheck, all ten tests and the production build; confirmed the existing timeline, early copy and smooth-scroll integration without design or source changes.

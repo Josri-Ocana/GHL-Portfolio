@@ -3,10 +3,19 @@ export function safeExternalUrl(value: string | undefined): string | undefined {
   if (!value) return undefined;
   try {
     const url = new URL(value);
-    return ["https:", "http:"].includes(url.protocol) ? url.href : undefined;
+    return url.protocol === "https:" && !url.username && !url.password ? url.href : undefined;
   } catch {
     return undefined;
   }
+}
+export function videoFileUrl(value: string): string | undefined {
+  const external = safeExternalUrl(value);
+  if (external) return external;
+  if (!value.startsWith("/media/") || /\\|%2f|%5c/i.test(value)) return undefined;
+  const url = new URL(value, "https://local.invalid");
+  return url.pathname.startsWith("/media/") && url.pathname.endsWith(".mp4")
+    ? `${url.pathname}${url.search}${url.hash}`
+    : undefined;
 }
 export function videoEmbedUrl(video: ProjectVideo): string | undefined {
   const safe = safeExternalUrl(video.url);

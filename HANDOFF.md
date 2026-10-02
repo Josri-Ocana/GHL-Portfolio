@@ -34,6 +34,7 @@ Next.js App Router; React; strict TypeScript; Tailwind CSS through PostCSS; GSAP
 - `src/lib/projectTimeline.ts`: workflowSteps-to-milestones mapping; `src/lib/smoothScroll.ts`: global wheel-scroll configuration.
 - `src/styles/globals.css`: shared tokens, editorial components, responsive and reduced-motion rules.
 - `tests/content.test.ts`: ten tests covering draft visibility, demo/content integrity, media URLs, milestone mapping and workflow branches.
+- `tests/security.test.ts`: five regression tests for external/media URLs, public site origin, JSON-LD escaping and CSP headers.
 
 ## Common edits
 
@@ -60,7 +61,7 @@ Drafts are excluded from all public queries and static params and return 404 eve
 
 ## Video
 
-`VideoPlayer` supports Loom share/embed URLs, YouTube watch/short/embed URLs, Vimeo public/unlisted URLs, and local `/media/*.mp4` or HTTP(S) MP4 files. Provider hostnames and IDs are checked before constructing iframes. No iframe or video request loads before activation. No autoplay or autoplay sound is requested. Native controls, responsive 16:9 frames, descriptive titles, source fallback links, optional WebVTT captions for files, and an optional text transcript are supported. Configure captions on third-party providers and supply a transcript for accessibility. Add a local optimized poster to avoid a blank media tile. There are no live videos until real project media is supplied.
+`VideoPlayer` supports Loom share/embed URLs, YouTube watch/short/embed URLs, Vimeo public/unlisted URLs, and local `/media/*.mp4` or credential-free HTTPS MP4 files. Provider hostnames and IDs are checked before constructing iframes; local paths are normalized and cannot escape `/media/`. No iframe or video request loads before activation. No autoplay or autoplay sound is requested. Native controls, responsive 16:9 frames, descriptive titles, source fallback links, optional WebVTT captions for files, and an optional text transcript are supported. Configure captions on third-party providers and supply a transcript for accessibility. Add a local optimized poster to avoid a blank media tile. There are no live videos until real project media is supplied.
 
 ## Design and motion
 
@@ -87,11 +88,11 @@ Semantic sections, one h1 per page, native FAQ disclosures, focus styles, skip l
 
 Unique page titles/descriptions, canonical URLs, Open Graph and Twitter image metadata, generated social image, semantic server-rendered content, project breadcrumbs, and truthful Person/WebSite/ProfilePage/CreativeWork/BreadcrumbList JSON-LD. FAQs are direct visible answers; no promises of rich results or search rankings. No fabricated ratings, employers, or metrics.
 
-`NEXT_PUBLIC_SITE_URL` is the only environment variable. Set a final HTTP(S) origin at build time. When absent, metadata falls back to localhost, robots blocks crawling, and the sitemap is empty. This prevents accidental indexing of an unconfigured installation. Production should use HTTPS. No secrets are exposed or required.
+`NEXT_PUBLIC_SITE_URL` is the only application environment variable. Set a credential-free HTTPS origin at build time; HTTP is accepted only for localhost by `src/lib/siteOrigin.ts`. When absent, metadata falls back to localhost, robots blocks crawling, and the sitemap is empty. This prevents accidental indexing of an unconfigured installation. No secrets are exposed or required.
 
 ## Deployment and maintenance
 
-Use Node.js 22+ and `npm ci`. Run lint, typecheck, tests, then build. Deploy the repository to Vercel with the Next.js preset and the site URL variable. Fonts are downloaded at build time and self-hosted. Package versions are locked in `package-lock.json`. Basic security headers are configured; a restrictive CSP is not imposed because future approved third-party media hosts vary.
+Use Node.js 22+ and `npm ci`. Run lint, typecheck, tests, then build. Deploy the repository to Vercel with the Next.js preset and the site URL variable. Fonts are downloaded at build time and self-hosted. Package versions are locked in `package-lock.json`. Security headers enforce framing/object/base restrictions and observe resource CSP in production Report-Only mode. See `SECURITY.md` for the origin inventory, HSTS/deployment checks and enforcement gate.
 
 Git origin is configured as `https://github.com/Josri-Ocana/GHL-Portfolio.git`. Do not push or deploy without the user's instruction. Do not infer a domain, email, or client data. No backend contact form is presented: the verified mailto CTA appears only when configured.
 
@@ -317,3 +318,15 @@ Remaining exploration areas, not implemented by this checkpoint:
 - Other animation references still to be selected.
 
 Recommended first step: read this resume section and inspect Git status/diff, then review the current homepage and a seven-/ten-step case study as the baseline before selecting one additional section-transition reference. Choose the specific reference and scope before changing implementation; do not restart or redesign the successful timeline.
+
+## Security and quality checkpoint — 2026-10-02
+
+`SECURITY.md` owns durable security rules and the scoped OWASP Top 10:2025 / ASVS review baseline. AGENTS.md retains its useful existing rules and adds only a contextual reference to it. No visual, timeline, smooth-scroll or dependency changes were made.
+
+`next.config.ts` now delegates headers to `src/lib/securityHeaders.ts`: existing nosniff/referrer/permissions/SAMEORIGIN headers remain; enforced CSP is `base-uri 'self'; object-src 'none'; frame-ancestors 'self'`. Production additionally sends resource CSP Report-Only without unsafe-eval or permissive inline script authorization. Next inline hydration/JSON-LD remain an enforcement prerequisite, not a reason to relax script policy. There is no reporting collector; deployed origin/toolbar/media inventory and nonce/hash testing remain required. Vercel HSTS is intentionally platform-owned, with no new preload/subdomain policy; verify the canonical HTTPS deployment before claiming it is audited.
+
+External URLs now reject HTTP and URL credentials; supported provider embeds still use exact hosts and validated IDs. `videoFileUrl` restricts local files to normalized `/media/*.mp4` paths and rejects traversal/ambiguous separators. `siteOrigin` rejects non-HTTPS public and credential-bearing metadata URLs while preserving local HTTP development. All existing demo/live content remains unchanged. Current routes have no write endpoints, user forms, authentication, server fetches or redirect inputs. Category parameters use the existing fixed allowlist and draft lookup still returns 404; JSON-LD escaping was regression-tested.
+
+Security scan found no secret-pattern matches in tracked source/history and only the empty tracked `.env.example`; npm audit found zero known vulnerabilities across production/development dependencies. Lockfile is unchanged. Lint, strict typecheck, 15 tests and production build passed. HTTP checks confirmed both CSP headers and absent X-Powered-By on home/archive/cases/static/error routes; hostile and repeated category queries render safely, and unknown/template cases return 404. Browser checks confirmed early ten-step copy, Lenis/system pin synchronization and expected 0/1/2 homepage pins across 320/375, 768/1024 and 1440/1920 widths without body overflow. Motion and reduced-motion gates remain unchanged; real reduced-motion/touch/trackpad, real provider playback, deployed header enforcement and cross-browser/performance checks remain pending as documented in SECURITY.md.
+
+This follow-up uses one `chore: security and quality checkpoint` commit on the existing `main`/`origin`, preserving the earlier `c9debb9` motion checkpoint. Do not force push or rewrite history.
