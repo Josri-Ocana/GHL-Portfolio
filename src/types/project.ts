@@ -16,6 +16,23 @@ export type ProjectVideo = {
   captions?: string;
   transcript?: string;
 };
+export type WorkflowSymbol =
+  | "workflow"
+  | "trigger"
+  | "webhook"
+  | "json"
+  | "mapping"
+  | "integration"
+  | "validation"
+  | "database";
+export type ProjectWorkflowStep = {
+  id?: string;
+  position?: "top" | "bottom";
+  label?: string;
+  title: string;
+  description?: string;
+  icon?: WorkflowSymbol;
+};
 export type Project = {
   slug: string;
   title: string;
@@ -53,7 +70,7 @@ export type Project = {
   video?: ProjectVideo;
   problem?: string;
   solution?: string;
-  workflowSteps?: { title: string; description?: string }[];
+  workflowSteps?: ProjectWorkflowStep[];
   results?: string[];
   liveUrl?: string;
   repositoryUrl?: string;

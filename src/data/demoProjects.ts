@@ -5,10 +5,39 @@ const samples: Array<
   Pick<
     Project,
     "slug" | "title" | "category" | "tools" | "summary" | "problem" | "solution" | "demoVisual"
-  > & { steps: string[]; notes: string[] }
+  > & {
+    steps: string[];
+    stepDescriptions?: string[];
+    stepIcons?: NonNullable<Project["workflowSteps"]>[number]["icon"][];
+    notes: string[];
+  }
 > = [
   {
     slug: "demo-lead-follow-up",
+    stepIcons: [
+      "trigger",
+      "database",
+      "database",
+      "mapping",
+      "mapping",
+      "validation",
+      "validation",
+      "workflow",
+      "validation",
+      "workflow",
+    ],
+    stepDescriptions: [
+      "Starts the journey with a submitted inquiry.",
+      "Matches the inquiry to its CRM contact.",
+      "Creates an opportunity for the new inquiry.",
+      "Places the opportunity in its pipeline stage.",
+      "Adds the tag used by this workflow.",
+      "Checks SMS consent before any message sends.",
+      "Checks email consent before any message sends.",
+      "Pauses before checking for booking or reply.",
+      "Checks whether the contact booked or replied.",
+      "Continues follow-up or exits when conditions match.",
+    ],
     title: "GoHighLevel Lead Follow-Up Automation",
     category: "Automation",
     tools: ["GoHighLevel", "Email", "SMS", "Pipeline", "Tags", "Triggers"],
@@ -49,6 +78,26 @@ const samples: Array<
   },
   {
     slug: "demo-crm-routing",
+    stepIcons: [
+      "trigger",
+      "validation",
+      "database",
+      "database",
+      "mapping",
+      "mapping",
+      "workflow",
+      "workflow",
+    ],
+    stepDescriptions: [
+      "Receives an inquiry from a supported source.",
+      "Identifies where the incoming inquiry came from.",
+      "Updates the contact with the inquiry details.",
+      "Creates the opportunity used for pipeline tracking.",
+      "Routes the inquiry to its selected pipeline.",
+      "Sets the stage for the next action.",
+      "Notifies the owner responsible for this inquiry.",
+      "Creates a task for the next follow-up.",
+    ],
     title: "CRM Pipeline & Lead Routing System",
     category: "CRM",
     tools: [
@@ -88,6 +137,24 @@ const samples: Array<
   },
   {
     slug: "demo-appointment-booking",
+    stepIcons: [
+      "trigger",
+      "validation",
+      "workflow",
+      "validation",
+      "mapping",
+      "database",
+      "workflow",
+    ],
+    stepDescriptions: [
+      "Starts the workflow when an appointment books.",
+      "Confirms the booking with the appointment contact.",
+      "Schedules each reminder around the booked time.",
+      "Checks the booking status before moving forward.",
+      "Selects the attended or no-show follow-up path.",
+      "Updates the pipeline to reflect appointment status.",
+      "Follows the next action for that status.",
+    ],
     title: "Appointment Booking Workflow",
     category: "Workflow",
     tools: ["GoHighLevel", "Calendars", "Email", "SMS", "Pipeline", "Workflow Automation"],
@@ -119,6 +186,26 @@ const samples: Array<
   },
   {
     slug: "demo-client-onboarding",
+    stepIcons: [
+      "trigger",
+      "json",
+      "mapping",
+      "mapping",
+      "database",
+      "workflow",
+      "workflow",
+      "validation",
+    ],
+    stepDescriptions: [
+      "Starts onboarding for the newly accepted client.",
+      "Collects the details needed for client onboarding.",
+      "Maps intake responses into the contact fields.",
+      "Marks the contact with its client tag.",
+      "Updates the opportunity for the onboarding handoff.",
+      "Assigns the internal task for the next action.",
+      "Welcomes the client and explains the next step.",
+      "Tracks the tasks needed to complete onboarding.",
+    ],
     title: "Client Onboarding Automation",
     category: "Automation",
     tools: ["GoHighLevel", "Forms", "Custom Fields", "Tasks", "Internal Notifications", "Email"],
@@ -151,6 +238,16 @@ const samples: Array<
   },
   {
     slug: "demo-make-integration",
+    stepIcons: ["trigger", "webhook", "json", "mapping", "integration", "validation", "database"],
+    stepDescriptions: [
+      "Trigger received from GoHighLevel.",
+      "Payload leaves GHL through the configured webhook.",
+      "Incoming data is checked before processing.",
+      "Fields are mapped into the required destination format.",
+      "Sends the prepared request to the connected service.",
+      "The returned response is validated.",
+      "Updates CRM records to confirm the final state.",
+    ],
     title: "GoHighLevel + Make Integration",
     category: "Integrations",
     tools: ["GoHighLevel", "Make.com", "Webhook", "JSON", "API"],
@@ -316,7 +413,12 @@ export const demoProjects: Project[] = samples.map((sample, i) => ({
   role: "Demo architecture & visual documentation",
   description: `Demonstration only—not client work or a deployed implementation. ${sample.summary}`,
   objective: `Illustrate the proposed path from ${sample.steps[0].toLowerCase()} to ${sample.steps.at(-1)!.toLowerCase()}, with readable handoffs and explicit decision points.`,
-  workflowSteps: sample.steps.map((title) => ({ title })),
+  workflowSteps: sample.steps.map((title, index) => ({
+    id: `step-${index + 1}`,
+    title,
+    description: sample.stepDescriptions?.[index],
+    icon: sample.stepIcons?.[index],
+  })),
   implementationNotes: sample.notes,
   demonstrates: [
     sample.summary,

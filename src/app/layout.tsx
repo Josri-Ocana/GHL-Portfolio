@@ -3,6 +3,7 @@ import { Barlow_Condensed, Manrope } from "next/font/google";
 import { siteConfig } from "@/data/site";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import "@/styles/globals.css";
 const display = Barlow_Condensed({
   subsets: ["latin"],
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${display.variable} ${body.variable}`}
     >
       <body id="top">
+        <SmoothScroll />
         <a className="skip-link" href="#main">
           Skip to content
         </a>

@@ -1,5 +1,48 @@
 # Changelog
 
+## 2026-10-02 — Final checkpoint for Monday
+
+- Revalidated lint, strict typecheck, all ten tests and the production build; confirmed the existing timeline, early copy and smooth-scroll integration without design or source changes.
+- Corrected stale handoff summaries and recorded implementation locations, remaining verification/content inputs, local Git state and MONDAY DESIGN RESUME guidance. Design remains unfinished.
+- Prepared one security-reviewed checkpoint commit for the existing main/origin repository, preserving all completed work and the Monday baseline.
+
+## 2026-10-02 — Global smooth scrolling
+
+- Added one root-level Lenis instance with light wheel interpolation, driven by the existing GSAP ticker and synchronized with ScrollTrigger.
+- Preserved native touch, keyboard, anchors/history and route landing; reused the shared reduced-motion gate and kept existing scene/timeline timing intact.
+- Verified production motion, navigation and six responsive widths; lint, typecheck, ten tests and build passed. Physical touch/trackpad and actual reduced-motion device checks remain pending.
+
+## 2026-10-02 — Correct horizontal-entry text timing
+
+- Fixed copy remaining hidden as milestones passed the readable area on longer workflows by tying text reveals to actual horizontal viewport entry.
+- Copy now finishes before reaching the center; preserved track movement, milestone positions, stem/dot/icon clocks and responsive behavior.
+- Verified all ten Lead Follow-Up milestones at 1024px, 1440px, large desktop and tablet, plus complete mobile content. Lint, typecheck, ten tests and production build passed.
+
+## 2026-10-02 — Earlier milestone text reveal
+
+- Shortened title/description movement to 22px and added brief overlapping reveals that finish before the stem fully extends.
+- Preserved the original activation clock, marker/icon timing, horizontal travel, milestone positions and responsive behavior.
+- Verified desktop/tablet readability and complete mobile content; lint, typecheck, ten tests and production build passed.
+
+## 2026-10-02 — Timeline milestone content polish
+
+- Added consistent decorative technical SVG symbols and concise project-data descriptions to workflow milestones, with copper/charcoal/muted icon states.
+- Strengthened title/copy hierarchy and overlapped a restrained icon reveal inside the existing animation; preserved track geometry, horizontal scrolling, stickiness and timing.
+- Verified mobile/tablet two-line copy across all five workflow cases; lint, typecheck, ten tests and production build passed. No dependencies or unrelated sections changed.
+
+## 2026-10-02 — Supplied case-study horizontal timeline
+
+- Replaced the earlier split-layout effect with the supplied Hyperiux timeline component in the existing UI directory, preserving sticky horizontal translation, central line drawing, alternating milestones, stems, dots and scrubbed SplitText reveals.
+- Adapted workflow data, portfolio typography and the centralized burnt copper token; removed the reference photograph/dates and obsolete custom effect/mapping code.
+- Kept mobile/reduced-motion content complete and static, rebuilt masks on resize, and preserved unrelated sections, website Page to CRM, CTA, video and SEO.
+- Lint, typecheck, ten tests and production build passed; verified responsive interaction and client cleanup. Actual reduced-motion visual and cross-browser checks remain pending.
+
+## 2026-10-02 — CTA verification and handoff completion
+
+- Preserved the shared primary, secondary and compact utility CTA hierarchy, footer Back to Top, wrapping optional project actions and outlined archive filters.
+- Verified populated CTA hover/focus, keyboard navigation, responsive targets, editorial Next Project and existing animation cleanup; lint, typecheck, eight tests and production build passed.
+- Updated current Git/demo/workflow documentation and recorded remaining media, reduced-motion and cross-browser checks plus the separate FAQ preference-gate issue.
+
 ## Content refinement
 
 - Reduced repeated system/connected/click wording in supporting copy while preserving signature headlines and search positioning.

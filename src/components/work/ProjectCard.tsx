@@ -54,18 +54,25 @@ export function ProjectCard({
         </Heading>
         <p>{project.summary}</p>
         <p className="micro">{project.tools.join(" / ")}</p>
-        <Link
-          className="text-link"
-          href={`/work/${project.slug}`}
-          aria-label={`View case study: ${project.title}`}
-        >
-          <span className="cta-label">View case study</span>
-        </Link>
-        {safeExternalUrl(project.liveUrl) && (
-          <a className="text-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-            <span className="cta-label">View live site</span>
-          </a>
-        )}
+        <div className="actions">
+          <Link
+            className="text-link"
+            href={`/work/${project.slug}`}
+            aria-label={`View case study: ${project.title}`}
+          >
+            <span className="cta-label">View case study</span>
+          </Link>
+          {safeExternalUrl(project.liveUrl) && (
+            <a
+              className="text-link"
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="cta-label">View live site</span>
+            </a>
+          )}
+        </div>
       </article>
     </ProjectReveal>
   );

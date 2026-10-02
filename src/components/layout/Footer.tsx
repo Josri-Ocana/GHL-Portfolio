@@ -33,7 +33,9 @@ export function Footer() {
             </a>
           ) : null,
         )}
-        <a href="#top">Back to top</a>
+        <a className="text-link" href="#top">
+          <span className="cta-label">Back to top</span>
+        </a>
       </div>
       <p className="footer-bottom">
         © {new Date().getFullYear()} {siteConfig.name}

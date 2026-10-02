@@ -127,7 +127,53 @@ test("challenge merges unique context without repeating demo overview", () => {
   );
 });
 import { technicalWorkflow } from "../src/data/workflow";
+import { projectTimeline } from "../src/lib/projectTimeline";
 
+test("timeline keeps every published workflow step and alternates top/bottom milestones", () => {
+  for (const project of publishedProjects) {
+    const milestones = projectTimeline(project);
+    assert.deepEqual(
+      milestones.map((item) => item.title),
+      (project.workflowSteps || []).map((step) => step.title),
+    );
+    milestones.forEach((item, index) => {
+      assert.equal(item.index, index);
+      assert.equal(item.step, String(index + 1).padStart(2, "0"));
+      assert.equal(item.position, index % 2 === 0 ? "top" : "bottom");
+    });
+  }
+  const integration = publishedProjects.find(
+    (project) => project.slug === "demo-make-integration",
+  )!;
+  const milestones = projectTimeline(integration);
+  assert.equal(milestones.filter((item) => item.position === "top").length, 4);
+  assert.equal(milestones.filter((item) => item.position === "bottom").length, 3);
+  assert.ok(milestones.every((item) => item.description));
+  assert.equal(milestones.at(-1)!.title, "CRM confirmation / review");
+});
+
+test("timeline supports supplied positions and descriptions while rejecting duplicate IDs", () => {
+  const project = publishedProjects[0];
+  const steps = [
+    {
+      id: "trigger",
+      title: "Approved trigger",
+      position: "bottom" as const,
+      description: "Supplied detail",
+      label: "TRIGGER",
+    },
+  ];
+  const [milestone] = projectTimeline({ ...project, workflowSteps: steps });
+  assert.equal(milestone.id, "trigger");
+  assert.equal(milestone.position, "bottom");
+  assert.equal(milestone.description, "Supplied detail");
+  assert.equal(milestone.label, "TRIGGER");
+  assert.deepEqual(projectTimeline({ ...project, workflowSteps: [] }), []);
+  assert.throws(
+    () => projectTimeline({ ...project, workflowSteps: [...steps, ...steps] }),
+    /Duplicate/,
+  );
+});
 test("technical workflow branches resolve to known states and bypass reminders for bookings", () => {
   const keys = technicalWorkflow.map((step) => step.key);
   assert.equal(new Set(keys).size, keys.length);

@@ -2,32 +2,38 @@
 
 ## Current state
 
+Final checkpoint for Friday, 2026-10-02: the design is **not final**. Preserve the current successful implementation when resuming on Monday, 2026-10-05. Today's case-study timeline, milestone content, earlier copy timing, CTA verification and global Lenis integration are complete. Detailed implementation and verification limits appear below; the final checkpoint and MONDAY DESIGN RESUME sections are the current resume instructions.
+
+CTA implementation is preserved and its populated controls were verified on 2026-10-02. Shared styles, behavior, check results and remaining verification limits are recorded in the CTA section below. No redesign was performed.
+
 Section 04 technical storytelling rework complete (2026-09-29). Section 02 is the conceptual System Overview; Section 04 is a seven-state automation with appointment branching. The workflow implementation and validation below supersede earlier five-stage workflow notes.
 
 Work Grid & Case Study UX Refinement complete (2026-09-29), including nine explicitly labeled demo records. Current work presentation and replacement guidance are documented below. No demo represents client work or measured results.
 
-Transition and intensity pass complete (2026-09-28), extending the verified 2026-09-24 motion pass. The approved layout, monochrome design, content, routes, and SEO are preserved. The two signature scenes now have complete scroll-driven timelines; supporting sections have restrained reveals. No dependencies were added. This workspace has no Git repository, so Git status/diff are unavailable.
+Transition and intensity pass complete (2026-09-28), extending the verified 2026-09-24 motion pass. The approved layout, monochrome design, content, routes, and SEO are preserved. The two signature scenes have scroll-driven timelines; supporting sections have restrained reveals. That pass added no dependencies; today's global scrolling pass added Lenis. The workspace uses its existing Git repository and origin remote; today's changes are included in the single checkpoint described below.
 
-Initial implementation in an originally empty workspace. Homepage, work library, dynamic case study route, reusable media, metadata, sitemap, robots, and structured data are implemented. No real project data, confirmed email, social URLs, or production domain were supplied. These are intentionally unconfigured. Nothing has been pushed or deployed.
+Homepage, work library, dynamic case study route, reusable media, metadata, sitemap, robots, and structured data are implemented. Nine published records are explicitly labeled demos. No real project data, confirmed email, social URLs, or production domain were supplied. These remain unconfigured. Remote deployment status has not been verified.
 
 Validation results are recorded below. Do not publish the template as a real case study.
 
 ## Stack and structure
 
-Next.js App Router; React; strict TypeScript; Tailwind CSS through PostCSS; GSAP/ScrollTrigger. No WebGL, competing animation libraries, Lenis, database, CMS, contact backend, or secret credentials. Server Components are the default.
+Next.js App Router; React; strict TypeScript; Tailwind CSS through PostCSS; GSAP/ScrollTrigger; Lenis 1.3.26 driven by the GSAP ticker. No WebGL, database, CMS, contact backend, or secret credentials. Server Components are the default.
 
 - `src/app`: home, work index, case studies, 404, layout, sitemap, robots, icon, generated Open Graph image.
 - `src/data`: site identity/contact/hero, navigation, services/process, skills, FAQs, projects, metadata helper.
 - `src/types/project.ts`: typed content contract and category list.
 - `src/components/sections`: independently editable home sections.
-- `src/components/layout`: responsive navigation and footer.
-- `src/components/work`: cards and empty state.
+- `src/components/layout`: responsive navigation, footer and the global SmoothScroll client component.
+- `src/components/work`: cards, empty state, CaseArchitecture wrapper and homepage workflow diagram.
+- `src/components/ui/timeline.tsx`: supplied horizontal case-study timeline; WorkflowIcon.tsx supplies decorative technical symbols.
 - `src/components/media`: click-to-load walkthrough player.
 - `src/components/animations`: scoped page entrance/reveal logic.
 - `src/components/seo`: safely serialized JSON-LD.
 - `src/lib/media.ts`: URL validation and provider normalization.
+- `src/lib/projectTimeline.ts`: workflowSteps-to-milestones mapping; `src/lib/smoothScroll.ts`: global wheel-scroll configuration.
 - `src/styles/globals.css`: shared tokens, editorial components, responsive and reduced-motion rules.
-- `tests/content.test.ts`: draft visibility, slug integrity, and provider URL tests.
+- `tests/content.test.ts`: ten tests covering draft visibility, demo/content integrity, media URLs, milestone mapping and workflow branches.
 
 ## Common edits
 
@@ -63,11 +69,11 @@ Palette: white, warm white, near black, charcoal, gray. Flat borders and square 
 `useMotionScene` owns scoped GSAP matchMedia setup and reverts all animations and ScrollTriggers on breakpoint changes and unmount. Font readiness, captured image loads, disclosure toggles/height transitions, and pageshow queue sorted refreshes through requestAnimationFrame; listeners and pending frames are cleaned up. Server-rendered content is visible before JavaScript.
 
 - `SystemStory` delegates to `animations/systemTimeline.ts`: central lead, staggered directional node/connection build, workflow label transition, complete-system hold, peripheral collapse, and a centered two-line final statement. Its cinematic class fills the viewport while pinned and is removed on cleanup.
-- `WorkflowShowcase` delegates to `animations/workflowTimeline.ts`: pins the diagram/copy composition, transitions CAPTURE through CONVERT, draws cumulative connections, and retains the completed path at the end. All five articles remain in the semantic document; only the enhanced visual composition overlaps them.
+- `WorkflowShowcase` delegates to `animations/workflowTimeline.ts`: desktop pins the diagram/copy composition, transitions seven states from TRIGGER through COMPLETE, expands Action and appointment branches, and retains the completed architecture. All steps remain in the semantic document; tablet/mobile use normal flow. See the technical workflow section below.
 - `PageMotion` delegates to `animations/editorialTimeline.ts`: masked hero entrance and scrubbed exit, divider drawing, calm services, browser-frame expansion, six process reveals, skill dividers, About panel/line masks, and staggered CTA words.
 - `ProjectReveal` wraps server-rendered project cards with media masks and copy stagger. Focus completes the reveal immediately for keyboard access. Native FAQ disclosure transitions use CSS feature detection with native fallback.
 
-Tune shared easing, reveal/stagger duration, scrub smoothing, breakpoints, and pin distances in `src/lib/motion.ts`; stage timing and labels live in the two timeline modules. Desktop is at least 1100px wide and 720px tall: system pins for 3.6 viewport heights, workflow for 3. Tablet (700–1099px wide, at least 720px tall) uses 2.5 and 2.1 respectively. The system also checks that its content fits before pinning. Mobile and short viewports use normal flow and progressive reveals. Native scrolling is retained.
+Tune shared easing, reveal/stagger duration, scrub smoothing, breakpoints, and pin distances in `src/lib/motion.ts`; stage timing and labels live in the two timeline modules. Desktop is at least 1100px wide and 720px tall: system pins for 3.6 viewport heights, workflow for 4.2. Tablet (700–1099px wide, at least 720px tall) pins only the system for 2.5 viewport heights. The system also checks that its content fits before pinning. Mobile and short viewports use normal flow and progressive reveals. Scrolling uses the native window, with global Lenis wheel interpolation on eligible devices and native touch behavior.
 
 Reduced motion disables all GSAP setup, scrub, and pins; nodes, connections, and all workflow copy remain readable in static flow. CSS removes smooth scrolling and motion transitions. No preference override or test route remains in the source.
 
@@ -87,7 +93,7 @@ Unique page titles/descriptions, canonical URLs, Open Graph and Twitter image me
 
 Use Node.js 22+ and `npm ci`. Run lint, typecheck, tests, then build. Deploy the repository to Vercel with the Next.js preset and the site URL variable. Fonts are downloaded at build time and self-hosted. Package versions are locked in `package-lock.json`. Basic security headers are configured; a restrictive CSP is not imposed because future approved third-party media hosts vary.
 
-No Git repository or remote existed initially. Initialize/push when the user supplies a destination. Do not infer a GitHub account, domain, email, or client data. No backend contact form is presented: the verified mailto CTA appears only when configured.
+Git origin is configured as `https://github.com/Josri-Ocana/GHL-Portfolio.git`. Do not push or deploy without the user's instruction. Do not infer a domain, email, or client data. No backend contact form is presented: the verified mailto CTA appears only when configured.
 
 Future changes should be local. Preserve unrelated sections, update this document when architecture changes, and verify replacements before removing old code or documentation.
 
@@ -98,8 +104,9 @@ Future changes should be local. Preserve unrelated sections, update this documen
 - Current diagrams explain an illustrative process; they are not claimed as client work.
 - No analytics, consent banner, contact submission service, CMS, or visual admin is installed.
 - Video provider availability and actual client screenshots must be checked again when real content is added.
+- The optional FAQ disclosure animation in `src/styles/globals.css` currently uses the reduced-motion query instead of no-preference. Global reduced-motion rules suppress its transitions, so native disclosure works but normal motion lacks this enhancement. This was identified during CTA verification and left for a focused motion fix.
 
-## Validation
+## Initial scaffold validation (historical)
 
 - Dependency installation succeeded; npm audit reported zero vulnerabilities at installation.
 - Final production build, strict type checking, ESLint (zero warnings), Prettier check, and all four content/media tests passed on the cleaned source.
@@ -167,7 +174,7 @@ To replace a demo, create a full `Project` entry in `src/data/projects.ts` using
 
 The existing `.wrap` max-width remains the outer boundary. `.featured-project-grid` and `.website-project-grid` share 12 columns and `--work-gutter` (20–36px). Featured cards occupy columns 1–6 and 7–12; the second starts three gutters lower. The third occupies columns 3–10. Websites alternate columns 1–10 and 3–12, retaining equal media widths, a 16:9 desktop preview canvas and aligned copy/metadata/CTAs beneath each frame. Vertical gaps use three gutter units. Adjust these `grid-column` declarations and gutter multiples in `src/styles/globals.css`, not arbitrary transforms or per-project copy. Tablet reduces the feature offset to one gutter and uses full-width website frames. Below 700px all work presentations use one column with no offsets. The archive keeps its restrained two-column/one-column grid.
 
-The shared case-study route renders: concise hero → Challenge → Solution → optional desktop/mobile preview → Workflow & Architecture (Page to CRM for websites) → Video Walkthrough → optional supporting gallery → Implementation notes (Build details for websites) → outcome → links → Next Project. The video block immediately follows workflow when workflow data exists. Diagrams retain numbered text equivalents and a vertically connected detailed sequence. No new pins or animation system were introduced: existing ProjectReveal, PageMotion and reduced-motion gates remain in use.
+The shared case-study route renders: concise hero → Challenge → Solution → optional desktop/mobile preview → Workflow & Architecture (Page to CRM for websites) → Video Walkthrough → optional supporting gallery → Implementation notes (Build details for websites) → outcome → links → Next Project. The video block immediately follows workflow when workflow data exists. Non-website cases now use the supplied horizontal timeline component documented below; website/funnel Page to CRM retains its existing layout. ProjectReveal, PageMotion and the shared reduced-motion gate remain in use.
 
 `src/lib/projectContent.ts` merges unique challenge/problem, real-project context and objective into at most three paragraphs; demo overview copy already repeats the summary and is omitted. `challenge` can replace legacy `problem`. Keep Solution concise and implementation notes to 3–6 useful points. Outcome selection is explicit: demos use `demonstrates` and “What this demo demonstrates”; real entries with `results` use “Outcome”; otherwise `deliverables` use “What I delivered”. Absent arrays/media render no empty sections. Add or remove optional blocks through project data; do not create separate routes/templates per project type.
 
@@ -202,3 +209,111 @@ For later case studies, import `WorkflowVisualization`, pass an approved step ar
 Validation: lint, strict typecheck and all eight tests passed. Viewed every desktop state, the masked word transitions, drawing connectors, action expansion, Yes/No split, activated No branch and final Complete architecture. Checked 320×800, 390×844, 768×1024, 1100×720, 1366×768, 1920×1080 and 2560×1080: no horizontal overflow. The desktop canvas is 648px tall and centers within the tested viewport. Total homepage pins are two on desktop, one on tablet (Section 02), zero on mobile. Work navigation removes pins and returning restores the expected count without nested pin spacers. Browser logs were clear. Reduced motion was tested through temporary preference-gate inversion at 320, 768 and 1366 widths: zero pins, all nodes/descriptions/branches visible; original gates were restored afterward. No cross-browser or frame-rate benchmark was performed.
 
 Section 04 final production build passed, including TypeScript and generation of all 17 routes/pages.
+
+## Shared CTA system and verification
+
+The final CTA rules and `--cta-*` tokens are in the shared CTA block at the end of `src/styles/globals.css`. Components retain semantic links for navigation and a real button for video activation. There is no separate CTA component or animation framework.
+
+- Primary: `.button.button-dark`, near-black fill, white text, thin black border, square corners, minimum 52px height.
+- Secondary: `.button`, white fill, black text and border, minimum 52px height.
+- Project/utility: `.text-link`, transparent outlined rectangle, minimum 44px height. Archive filters use the same compact height and outlined treatment. `.project-cover-label` is a decorative VIEW badge inside the actual cover link, not a separate control.
+- Tokens: standard/compact height 52/44px, horizontal padding 24/18px, shared action gap 14px, text 11px and tracking .08em. `.actions` wraps optional project links; footer links wrap too.
+- `.cta-label` provides a restrained 2px hover shift. Primary hover inverts to white/black; secondary and utility invert to black/white. Active controls use charcoal/white. Focus uses a visible 2px outline with space around the control. Reduced motion disables transitions and label movement.
+- Normal CTAs have text-only labels. Process connectors, ordered data-flow arrows and Yes/No branch arrows remain because they communicate logic. Noninteractive service/empty-state graphics are outside the CTA rule.
+- Next Project is one full-width editorial link with the category label and large title. Hover warms the background and shifts the title 3px; keyboard focus outlines the entire link. Its `#main` destination lands at the next case-study intro.
+- The video poster remains a semantic activation button with a styled span inside it, and loads media only after activation. The external fallback is a compact link. Missing demo recordings render noninteractive placeholders.
+
+Verification on 2026-10-02: lint, strict typecheck, all eight existing tests and the production build passed (17 generated routes/pages). Tests ran outside the sandbox for the known Windows user-info lookup limitation. The first sandbox build could not download Google Fonts; the build with network permission passed. The existing dev server at port 3000 had fallback fonts from that same restriction; visual checks used the successful production build at port 3002 with the approved fonts. No dependency or font configuration was changed.
+
+Chromium checks covered homepage hero/curated work/website utility controls, archive filters, automation and CRM case studies on mobile, and integration/website case studies on desktop, with representative widths 320, 390, 768, 1366, 1920 and 2560. The website case study had no horizontal overflow at all tested widths. Tested homepage/mobile/archive views also had no overflow. Primary/secondary hover inversion and 2px label shifts were observed; utility/filter/footer and Next Project hover/focus were inspected. Hero controls measured 52px; utility controls measured 44px; tablet filters exceeded 44px. Mobile hero wraps when necessary and case-study action links fit without clipped labels.
+
+Native keyboard input verified category filtering, case-study links, Next Project and Back to Top. Next Project landed with the new main content 30px below the viewport top; Back to Top returned to the top. Space opens the mobile/tablet menu and Escape closes it and restores toggle focus. Homepage desktop system assembly and workflow Contact/Action/Follow Up/Complete states, expanded actions and appointment branching were reviewed during scroll. Resize checks retained two desktop pins, one tablet pin and zero mobile pins. Case-study navigation removed homepage pins; returning restored the expected count. No production console errors were observed. All nine generated demo pages contain noindex and omit CreativeWork schema.
+
+Remaining limits: actual live/repository/contact links and playable video are unconfigured, so their safe conditional rendering, grouping and activation logic were reviewed in code; live destinations/playback were not exercised. The browser reports no-preference and exposes no reduced-motion emulation; reduced-motion gates were inspected without changing production queries or OS preferences. A fresh visual check under a real reduced-motion preference, Safari/Firefox checks and performance profiling remain pending. The FAQ preference-gate inconsistency above is a separate small motion issue; no CTA redesign or unrelated implementation change was made during this verification.
+
+## Case-study Workflow & Architecture — supplied horizontal timeline
+
+The current implementation replaces the earlier split architecture/detail effect with the actual supplied Hyperiux Vault `timeline.tsx` component as its base. `src/components/ui/timeline.tsx` retains the recognizable sticky viewport, wholeSlider horizontal xPercent translation, progressive journey-line, alternating top/bottom milestones, stem scaleY, dot scaling, and scrubbed SplitText line reveals. The image, dated product-history content and reference orange are removed. The old `ArchitectureMotion`, `architectureTimeline` and `projectArchitecture` files and their node-group mapping data were removed after the replacement worked. No new dependencies were installed.
+
+`CaseArchitecture` remains a small Server Component in the shared non-website case-study route. It renders the existing workflow heading/provenance, the project's supplied demo headline when available, and the client Timeline. Website/funnel Page to CRM, Challenge/Solution, video, CTA, homepage scenes and SEO remain unchanged. The timeline uses the supplied composition rather than the homepage's cinematic workflow.
+
+`projectTimeline` maps the existing `Project.workflowSteps` into serializable milestones: stable `id`, original `index`, two-digit `step`, `title`, optional `label`/`description`, and `position: top | bottom`. Positions alternate by default, with optional explicit position overrides on a workflow step. Duplicate step IDs are rejected. Every supplied detail remains a separate milestone; no high-level grouping is imposed. The illustrative Make integration has seven milestones: four above and three below the line, with descriptions supplied in the correction brief. Ten-step legacy workflows use the same component. Missing descriptions produce no empty copy or animation targets. For approved real work, populate workflowSteps in `src/data/projects.ts`; use approved titles, descriptions and optional stable IDs/positions. Animation state is never stored in project content.
+
+The wholeSlider tween and journey-line draw across the section remain, with separate scrubbed stem/dot/icon timelines for each milestone. The source marker reveal windows [6,26] through [65,85] are generalized across the actual milestone count. Title/description reveals follow actual horizontal entry through containerAnimation, as documented below. The horizontal travel is measured from the track and viewport widths so the final milestone remains reachable for different workflow lengths. Sticky travel is contained within the section and releases into the unchanged Video Walkthrough; no GSAP pin spacer is added. SplitText uses word/line masks, avoiding unused character splitting; the source stem/dot/icon clock is preserved.
+
+The existing `useMotionScene` owns GSAP context, plugin setup, refresh and the shared no-preference gate. An inner matchMedia handles horizontal layout at widths of at least 700px and heights of at least 560px. Width observation rebuilds the scene through context cleanup so SplitText line wrapping stays valid after resize. Cleanup reverts SplitText, tweens and ScrollTriggers, removes enhancement/state attributes and disconnects the observer. Selectors are scoped to the component.
+
+Small screens and short viewports show a complete vertical ordered sequence in normal flow. Reduced motion follows the same readable static markup: the shared preference gate initializes no timeline scene, and base CSS has no sticky viewport, large scroll distance or hidden text. No competing preference hook or production query inversion was introduced. The animated top/bottom duplicate is decorative and aria-hidden; a logically ordered semantic list remains available to assistive technology on desktop and becomes the visible static/mobile presentation.
+
+The single central `--color-accent: #c65a24` token supplies the progressive horizontal line, active stems/dots and a tiny current marker. Completed stems/dots return to black; the main line retains the source's copper progress treatment. State labels also say NEXT/CURRENT/DONE. Typography, backgrounds, headings and CTAs remain monochrome. Copper occupies only thin lines/tiny markers, well below the brief's approximate 5% ceiling. Do not apply it to large headings, filled cards, buttons, all links or backgrounds, or introduce bright reference orange, gradients or multiple accents.
+
+Validation on 2026-10-02: lint, strict typecheck, all ten tests and production build passed (17 generated routes/pages). Tests cover all published workflow steps, alternating positions, seven integration milestones/descriptions, explicit positions, empty workflows and duplicate IDs. Visually confirmed the supplied interaction on desktop: sticky viewport, whole-track translation, growing central line, opposite stem origins, dot activation, masked titles/descriptions and final readable confirmation before release. Production checks at 375×844, 768×1024, 1024×768 and 1440×900 found no horizontal body overflow; mobile is static and tablet retains horizontal motion. Resize and short-viewport checks reverted masks/state attributes and restored one fresh timeline. Client navigation to Next Project removed the timeline, preserved website Page to CRM and landed main at 30px; returning home restored the two existing pins. A ten-step legacy case rendered all milestones, with no inspected production console warnings/errors. Reduced-motion gating and static markup were checked in code; an actual reduced-motion visual check remains pending because the available browser reports no-preference and exposes no emulation capability. No formal performance or cross-browser benchmark was performed.
+
+### Milestone content polish
+
+Workflow milestones now accept an optional `icon` key alongside their existing title, description and label. `projectTimeline` preserves this metadata and defaults to a neutral workflow symbol when an icon is absent. `WorkflowIcon` follows the existing inline SVG convention: decorative 22px, 1.5px stroke, no fill, consistent caps/joins, aria-hidden and unfocusable. No icon library was installed. Available keys are workflow, trigger, webhook, json, mapping, integration, validation and database.
+
+The five non-website demo workflows supply symbols and concise descriptions centrally in `src/data/demoProjects.ts`, based on their existing illustrative sequences. Future real workflows should supply approved descriptions and appropriate icon keys in workflowSteps; the component contains no demo-copy lookup or title-based inference. Website Page to CRM is unchanged.
+
+The hierarchy is step/status → small icon → strong title → smaller muted description. Active icons use the central burnt copper token, completed icons use ink and upcoming icons use muted gray; stems/dots use the corresponding active/completed/upcoming colors. The icon's restrained 8px/opacity reveal overlaps the existing item timeline at time zero, so it adds no scroll trigger or duration. Horizontal travel, sticky viewport, track dimensions, alternating positions, line progression and scroll windows remain unchanged. Descriptions use 13px desktop/12px tablet type with compact spacing; the existing mobile/static list shows complete readable icons and copy.
+
+Validation: lint, strict typecheck, ten tests and production build passed. Production review at 1440×900 confirmed icon/state coloring and the existing scroll interaction. At 768×1024 and 375×844, all five workflow cases had descriptions of at most two lines, with no truncation or horizontal overflow. The integration case also passed 1024×768. Three phrases were shortened after tablet wrapping checks. Icons remain decorative and the logical semantic list carries the full meaning. Existing reduced-motion handling remains unchanged; its prior actual-preference visual verification limitation still applies.
+
+### Earlier milestone text timing
+
+Only the title/description reveal timing changed in `src/components/ui/timeline.tsx`. The initial timing adjustment still used section-percentage windows, which drifted relative to horizontal entry on the ten-step Lead Follow-Up workflow: its current contact milestone could pass the readable area before copy appeared. Copy now has a scoped ScrollTrigger using the existing horizontal timeline as containerAnimation. It reveals from `left 90%` to `left 65%`, becoming complete before the milestone reaches the center and staying visible through its remaining travel.
+
+Both copy targets use a 22px masked upward movement, subtle opacity and 0.01-second line stagger. The title starts immediately; the description follows at 0.03 × normalized duration, with brief overlapping reveals. An inert hold tween preserves the original marker activation duration, including its prior line-count allowance. Stem/dot growth stays at 0.4 × duration through 0.8 × duration. Horizontal travel, marker ScrollTrigger windows, icon timing, layout and responsive rules are unchanged; the new copy triggers share the existing scoped cleanup and resize rebuilding.
+
+Correction validation: lint, strict typecheck, all ten tests and production build passed. Production checks placed every milestone of the ten-step Lead Follow-Up workflow at its center/readable position at 1024×768, 1440×900, 1920×920 and 768×1024. Every title/description line had full opacity and zero translation, including the first/final reachable positions. Reproduced the user's second-milestone CURRENT position at large desktop width and confirmed complete copy. Mobile 375×844 retained all ten readable static steps, no masks or enhancement attributes. No horizontal body overflow or inspected production console warnings/errors; resize cleanup restored the static mobile view. Actual reduced-motion and cross-browser visual checks remain pending as previously documented.
+
+## Global smooth scrolling
+
+`src/components/layout/SmoothScroll.tsx` mounts once in the persistent root layout and owns one Lenis 1.3.26 instance. Global tuning lives in `src/lib/smoothScroll.ts`: wheel lerp 0.18, multiplier 1, syncTouch false, autoRaf false. It scrolls the native window without transformed wrappers or scrollerProxy, preserving existing sticky/pinned geometry and all section/timeline timing. No design, timeline or scene changes were needed. Integration follows the [Lenis GSAP guidance](https://github.com/darkroomengineering/lenis): the existing GSAP ticker calls raf with milliseconds, Lenis scroll events call ScrollTrigger.update, and ticker lag smoothing is disabled globally. There is no second animation loop or new refresh loop; existing useMotionScene refresh ownership stays unchanged.
+
+The shared `motion.allowed` query owns reduced-motion behavior through GSAP matchMedia. Lenis only initializes with no-preference and a fine, hover-capable pointer; a preference/device change destroys the instance and ticker subscription. Lenis's own preference behavior is disabled because this shared gate owns it. Coarse-pointer devices use native scrolling; touch remains native even on hybrid devices, because syncTouch is false. Narrow mouse-driven desktop windows can still use wheel smoothing. Existing reduced-motion CSS makes native anchor scrolling immediate.
+
+Anchors remain browser/Next.js owned with the existing CSS smooth behavior and 30px scroll padding. Header is in normal flow, so no new fixed-header offset is necessary. Lenis anchors are disabled to avoid competing with Next hash navigation, focus and browser history. Wheel momentum is canceled before links, scroll keys, Tab/focus changes and history restoration without preventing default behavior. Route changes resize/synchronize Lenis to Next's chosen position instead of forcing top. Native nested scroll containers and form/dialog controls bypass wheel smoothing; data-lenis-prevent remains available for future overlays. Cleanup removes listeners, ticker callback, scroll subscription and Lenis classes/observers.
+
+Validation: lint, strict typecheck, all ten tests and production build passed (17 routes/pages). Production Chromium review used wheel input through Hero, System Overview, Proof of Work and the pinned Inside the Workflow decision scene. The seven- and ten-step architecture timelines retained track movement, line/marker states, early full-opacity copy and reachable final milestones. Next Project landed main at 30px; Back to Top returned to zero; Services landed at 30px and hash/history restoration remained native. Home/End, Page Up/Down, Space and Tab worked; mobile menu Space/Escape retained focus behavior. Width checks at 320, 375, 768, 1024, 1440 and 1920 found no horizontal body overflow and expected homepage pin counts (0 mobile, 1 tablet, 2 desktop); navigation removed homepage pins. Timeline mobile resize reverted masks and retained complete static content. No inspected console errors/warnings.
+
+Limits: browser viewport tests retain a desktop fine pointer and cannot emulate reduced motion or physical touch/trackpad gestures. Native touch/coarse-pointer and live reduced-motion cleanup were reviewed in implementation but require real-device/preference checks. No Safari/Firefox or frame-rate benchmark was performed. Existing unrelated FAQ preference-gate limitation remains as previously recorded.
+
+## Final checkpoint — 2026-10-02
+
+Complete: the supplied case-study horizontal interaction, alternating milestones, technical icons, short project-data descriptions, earlier copy reveal, copper active states, shared CTA verification and global smooth scrolling. The current reference motion is approved; the overall design is not final. This checkpoint changed documentation only, corrected stale stack/current-state notes, and preserved all working source. No new implementation regression was found.
+
+Resume map:
+
+- `src/components/work/CaseArchitecture.tsx` is the Server Component wrapper used by non-website cases in `src/app/work/[slug]/page.tsx`. Website/funnel Page to CRM remains separate.
+- `src/components/ui/timeline.tsx` owns the supplied sticky horizontal viewport, wholeSlider travel, progressive line and alternating top/bottom items. Its pinned appearance uses CSS sticky, not a new GSAP pin spacer. `src/components/ui/WorkflowIcon.tsx` renders decorative 22px technical SVGs.
+- Populate `Project.workflowSteps` in `src/data/projects.ts` for approved real work. Current demo sequences, descriptions and icon keys are in `src/data/demoProjects.ts`; `src/lib/projectTimeline.ts` maps stable IDs, step numbers, titles, optional labels/descriptions/icons and alternating or supplied positions. Keep demos explicitly illustrative and drafts inaccessible.
+- `--color-accent: #c65a24` in `src/styles/globals.css` applies only to the thin progress line and active icons/stems/dots/current marker. Completed items use ink; upcoming items use muted/light gray. Keep large surfaces, headings and CTAs monochrome, and retain textual state labels.
+- Marker/icon windows and activation clocks remain unchanged. Copy alone follows the horizontal containerAnimation from `left 90%` to `left 65%`, with the 22px masked reveal and minimal stagger. Do not revert to section-percentage copy windows: they caused the longer-workflow readability regression.
+- `src/components/layout/SmoothScroll.tsx` and `src/lib/smoothScroll.ts` own the one root Lenis instance and 0.18 wheel lerp. Use the GSAP ticker plus ScrollTrigger.update; retain native window geometry, anchors/history, keyboard controls and touch. Do not add a second RAF loop, scrollerProxy, Lenis instance or refresh owner.
+- Shared `motion.allowed` disables timeline setup and Lenis under reduced motion. Timeline widths below 700px or heights below 560px use complete static content. Scoped matchMedia, SplitText reversion, ResizeObserver and ticker/listener cleanup must remain intact.
+
+Fresh checkpoint validation: `npm run lint`, `npm run typecheck`, `npm test` (10/10) and `npm run build` (17 generated routes/pages) passed. Tests/build used the previously documented Windows sandbox/network allowances. The existing Next warning about ignoring the parent-directory package-lock is informational; repository configuration was not changed. Fresh production Chromium checks at 1440×900 confirmed seven-step alternating content, copper states, sticky track, first/middle/final readable copy and Lenis presence. The ten-step contact milestone remained fully readable before center. At 375×844, all ten static steps remained available, enhancement/masks reverted and there was no body overflow. Inspected logs were clear. Earlier same-day six-width and navigation checks are recorded above.
+
+Intentionally unfinished: design exploration below; approved real project facts/assets/results; configured contact/social/domain and launch inputs; supplied video media/captions/transcripts; physical trackpad/touch and live reduced-motion preference testing; Safari/Firefox and performance/accessibility audits. The older optional FAQ disclosure preference-gate issue remains documented for a focused fix; it does not block native disclosure. None of these were implemented or claimed complete today.
+
+Git checkpoint: existing branch `main`, origin `https://github.com/Josri-Ocana/GHL-Portfolio.git`, base commit `e36744d` (Initial portfolio commit). Today's legitimate source/documentation changes, including all six new source files, are packaged in one commit named `feat: refine portfolio workflow interactions and motion`, with delivery to `origin main` by normal push. Before Monday edits, run `git status`, `git log -1` and `git fetch origin`, and confirm HEAD matches origin/main. Preserve this checkpoint while experimenting; do not force push, rewrite history or reset working changes. No Vercel configuration or deployment verification is included. Use `npm run dev` for local work; `npm run start -- --port 3002` serves the validated production build when running.
+
+Pre-commit security review: only the 19 intended source, documentation, test and dependency-manifest files are candidates. No actual environment files, secret-pattern matches, generated build directories, credentials or unnecessary local files were found among them. Existing ignore rules are retained; the previously tracked `.env.example` contains only an empty public-domain placeholder and is unchanged. Final lint/typecheck, ten tests and production build were rerun before commit/push. No design or implementation changes were needed during the checkpoint.
+
+## MONDAY DESIGN RESUME
+
+The design is **NOT final**. Resume design work on Monday, 2026-10-05. Preserve the successful layout, content architecture, CTA controls, accessibility, responsive/static alternatives, approved timeline motion and earlier copy timing while experimenting. Make one focused experiment at a time and verify it before replacing any working implementation.
+
+Remaining exploration areas, not implemented by this checkpoint:
+
+- Additional section transitions.
+- Typography animation experiments.
+- Project-card interactions.
+- Case-study visual components.
+- Media presentation.
+- Possible 21st.dev component experiments.
+- Navigation interaction polish.
+- Other animation references still to be selected.
+
+Recommended first step: read this resume section and inspect Git status/diff, then review the current homepage and a seven-/ten-step case study as the baseline before selecting one additional section-transition reference. Choose the specific reference and scope before changing implementation; do not restart or redesign the successful timeline.

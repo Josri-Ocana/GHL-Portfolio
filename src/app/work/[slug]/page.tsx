@@ -8,6 +8,7 @@ import { pageMetadata } from "@/data/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ProjectWalkthrough } from "@/components/media/ProjectWalkthrough";
 import { DemoVisual } from "@/components/work/DemoVisual";
+import { CaseArchitecture } from "@/components/work/CaseArchitecture";
 import { caseContent } from "@/lib/projectContent";
 import { safeExternalUrl } from "@/lib/media";
 export function generateStaticParams() {
@@ -174,10 +175,10 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
             />
           </section>
         )}
-        {!!project.workflowSteps?.length && (
+        {!!project.workflowSteps?.length && !isWebsite && <CaseArchitecture project={project} />}
+        {!!project.workflowSteps?.length && isWebsite && (
           <section className="case-section">
             <h2>{isWebsite ? "PAGE TO CRM" : "WORKFLOW & ARCHITECTURE"}</h2>
-            {!isWebsite && project.demoVisual && <DemoVisual project={project} />}
             <ol className="case-workflow">
               {project.workflowSteps.map((step, i) => (
                 <li key={`${step.title}-${i}`}>

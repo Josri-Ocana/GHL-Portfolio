@@ -32,7 +32,7 @@ Use `npm run format` to format source and documentation consistently.
 
 - Set the verified email and social URLs in `src/data/site.ts`.
 - Copy the unpublished entry in `src/data/projects.ts`, replace its content with verified work, add assets under `public/projects/<slug>/`, and set `published: true`.
-- Unpublished projects return 404. The live library intentionally starts empty.
+- Unpublished projects return 404. The current library contains nine explicitly labeled demo concepts; replace them with approved real work using the guidance in `HANDOFF.md`. Demo case studies remain noindex and excluded from project schema and sitemap entries.
 - Set `NEXT_PUBLIC_SITE_URL=https://your-real-domain` before production build. Without it, indexing is disabled and the sitemap is empty; localhost is used only as a development metadata fallback.
 - Push to a GitHub repository and import into Vercel using its Next.js preset. Add the environment variable, then deploy. No custom server or Vercel configuration is needed.
 - Confirm contact links, project permissions, canonical URLs, and video captions/transcripts before launch.
