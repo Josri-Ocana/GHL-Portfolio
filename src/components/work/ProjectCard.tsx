@@ -4,6 +4,7 @@ import type { Project } from "@/types/project";
 import { safeExternalUrl } from "@/lib/media";
 import { ProjectReveal } from "@/components/animations/ProjectReveal";
 import { DemoVisual } from "./DemoVisual";
+import { projectStatusLabel } from "@/lib/projectStatus";
 export function ProjectCard({
   project,
   headingLevel = 3,
@@ -14,7 +15,8 @@ export function ProjectCard({
   subtle?: boolean;
 }) {
   const Heading = headingLevel === 2 ? "h2" : "h3";
-  const cover = project.coverImage || project.video?.poster;
+  const cover =
+    project.status === "concept" ? undefined : project.coverImage || project.video?.poster;
   return (
     <ProjectReveal subtle={subtle}>
       <article className="project-card">
@@ -47,7 +49,7 @@ export function ProjectCard({
             {project.number && `${project.number} / `}
             {project.category}
           </span>
-          <span>{project.isDemo ? "DEMO PROJECT" : project.status || project.year}</span>
+          <span>{projectStatusLabel(project)}</span>
         </div>
         <Heading className="project-title">
           <Link href={`/work/${project.slug}`}>{project.title}</Link>
@@ -62,7 +64,7 @@ export function ProjectCard({
           >
             <span className="cta-label">View case study</span>
           </Link>
-          {safeExternalUrl(project.liveUrl) && (
+          {project.status !== "concept" && safeExternalUrl(project.liveUrl) && (
             <a
               className="text-link"
               href={project.liveUrl}

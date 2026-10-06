@@ -4,16 +4,41 @@ import type { Project } from "@/types/project";
 const samples: Array<
   Pick<
     Project,
-    "slug" | "title" | "category" | "tools" | "summary" | "problem" | "solution" | "demoVisual"
+    | "slug"
+    | "title"
+    | "category"
+    | "tools"
+    | "summary"
+    | "problem"
+    | "solution"
+    | "demoVisual"
+    | "workflowVisualization"
   > & {
     steps: string[];
     stepDescriptions?: string[];
     stepIcons?: NonNullable<Project["workflowSteps"]>[number]["icon"][];
+    stepTypes?: NonNullable<Project["workflowSteps"]>[number]["type"][];
     notes: string[];
   }
 > = [
   {
     slug: "demo-lead-follow-up",
+    workflowVisualization: {
+      type: "timeline",
+      overview: { stepIds: ["step-1", "step-2", "step-10"] },
+    },
+    stepTypes: [
+      "trigger",
+      "data",
+      "data",
+      "action",
+      "action",
+      "condition",
+      "condition",
+      "action",
+      "condition",
+      "output",
+    ],
     stepIcons: [
       "trigger",
       "database",
@@ -78,6 +103,11 @@ const samples: Array<
   },
   {
     slug: "demo-crm-routing",
+    workflowVisualization: {
+      type: "timeline",
+      overview: { stepIds: ["step-1", "step-5", "step-8"] },
+    },
+    stepTypes: ["trigger", "condition", "data", "data", "action", "action", "action", "output"],
     stepIcons: [
       "trigger",
       "validation",
@@ -137,6 +167,8 @@ const samples: Array<
   },
   {
     slug: "demo-appointment-booking",
+    workflowVisualization: { type: "canvas" },
+    stepTypes: ["trigger", "action", "action", "condition", "condition", "data", "output"],
     stepIcons: [
       "trigger",
       "validation",
@@ -186,6 +218,8 @@ const samples: Array<
   },
   {
     slug: "demo-client-onboarding",
+    workflowVisualization: { type: "canvas" },
+    stepTypes: ["trigger", "data", "data", "action", "data", "action", "action", "output"],
     stepIcons: [
       "trigger",
       "json",
@@ -238,6 +272,11 @@ const samples: Array<
   },
   {
     slug: "demo-make-integration",
+    workflowVisualization: {
+      type: "timeline",
+      overview: { stepIds: ["step-1", "step-5", "step-7"] },
+    },
+    stepTypes: ["trigger", "data", "condition", "data", "action", "condition", "output"],
     stepIcons: ["trigger", "webhook", "json", "mapping", "integration", "validation", "database"],
     stepDescriptions: [
       "Trigger received from GoHighLevel.",
@@ -279,6 +318,17 @@ const samples: Array<
   },
   {
     slug: "demo-auto-shop-funnel",
+    workflowVisualization: { type: "canvas" },
+    stepTypes: ["trigger", "action", "data", "data", "action", "output"],
+    stepIcons: ["workflow", "mapping", "form", "database", "calendar", "validation"],
+    stepDescriptions: [
+      "Visitor reviews the service and offer.",
+      "Visitor selects the service they need.",
+      "Lead submits their contact and request details.",
+      "Lead information is created or updated in the CRM.",
+      "Qualified lead continues to appointment booking.",
+      "Submission and booking flow reaches confirmation.",
+    ],
     title: "Auto Shop Website Funnel",
     category: "Websites",
     tools: ["GoHighLevel", "Forms", "Calendar", "CRM"],
@@ -310,6 +360,17 @@ const samples: Array<
   },
   {
     slug: "demo-consultation-funnel",
+    workflowVisualization: { type: "canvas" },
+    stepTypes: ["trigger", "data", "condition", "action", "output", "action"],
+    stepIcons: ["workflow", "form", "validation", "calendar", "validation", "email"],
+    stepDescriptions: [
+      "Introduces the consultation before collecting inquiry details.",
+      "Collects the visitor's goals for the consultation.",
+      "Checks whether the inquiry fits the consultation scope.",
+      "Offers the calendar after the inquiry qualifies.",
+      "Explains preparation for the booked consultation.",
+      "Starts the appropriate follow-up for the inquiry.",
+    ],
     title: "Consultation Booking Funnel",
     category: "Funnels",
     tools: ["GoHighLevel", "Calendar", "Form", "Workflow"],
@@ -341,6 +402,17 @@ const samples: Array<
   },
   {
     slug: "demo-program-application",
+    workflowVisualization: { type: "canvas" },
+    stepTypes: ["trigger", "action", "condition", "action", "data", "output"],
+    stepIcons: ["workflow", "workflow", "validation", "workflow", "form", "database"],
+    stepDescriptions: [
+      "Introduces the fictional program and its proposed scope.",
+      "Explains the outline before requesting applicant details.",
+      "Shows the eligibility guidance for prospective applicants.",
+      "Answers questions before the application is submitted.",
+      "Collects application responses in structured fields.",
+      "Assigns a review stage without claiming acceptance.",
+    ],
     title: "Program Application Landing Page",
     category: "Funnels",
     tools: ["GoHighLevel", "Application Form", "Workflow", "Pipeline"],
@@ -372,6 +444,17 @@ const samples: Array<
   },
   {
     slug: "demo-local-service",
+    workflowVisualization: { type: "canvas" },
+    stepTypes: ["trigger", "action", "condition", "action", "data", "output"],
+    stepIcons: ["workflow", "workflow", "validation", "workflow", "form", "database"],
+    stepDescriptions: [
+      "Introduces the fictional service website concept.",
+      "Helps visitors find the service relevant to their inquiry.",
+      "Shows where visitors can check the proposed service coverage.",
+      "Explains the next steps before an inquiry is submitted.",
+      "Collects the inquiry topic and its source.",
+      "Passes the submitted inquiry into the CRM.",
+    ],
     title: "Local Service Lead-Generation Website",
     category: "Websites",
     tools: ["GoHighLevel", "Forms", "SEO Structure", "CRM"],
@@ -418,6 +501,7 @@ export const demoProjects: Project[] = samples.map((sample, i) => ({
     title,
     description: sample.stepDescriptions?.[index],
     icon: sample.stepIcons?.[index],
+    type: sample.stepTypes?.[index],
   })),
   implementationNotes: sample.notes,
   demonstrates: [

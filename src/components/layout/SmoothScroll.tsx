@@ -25,6 +25,10 @@ export function SmoothScroll() {
         instance.current = lenis;
         const tick = (seconds: number) => lenis.raf(seconds * 1000);
         const reset = () => lenis.scrollTo(lenis.actualScroll, { immediate: true });
+        const restore = () => {
+          lenis.resize();
+          reset();
+        };
         // Cancel wheel momentum before native keyboard/focus/history/anchor scrolls.
         // No default prevention: the browser and Next retain navigation ownership.
         const keydown = (event: KeyboardEvent) => {
@@ -45,6 +49,7 @@ export function SmoothScroll() {
         window.addEventListener("focusin", reset);
         window.addEventListener("popstate", reset);
         window.addEventListener("pageshow", reset);
+        window.addEventListener("portfolio:scroll-restored", restore);
         return () => {
           gsap.ticker.remove(tick);
           lenis.off("scroll", ScrollTrigger.update);
@@ -53,6 +58,7 @@ export function SmoothScroll() {
           window.removeEventListener("focusin", reset);
           window.removeEventListener("popstate", reset);
           window.removeEventListener("pageshow", reset);
+          window.removeEventListener("portfolio:scroll-restored", restore);
           lenis.destroy();
           instance.current = null;
         };

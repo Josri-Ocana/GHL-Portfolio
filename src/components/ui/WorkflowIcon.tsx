@@ -40,6 +40,32 @@ const symbols = {
       <path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0" />
     </>
   ),
+  form: (
+    <>
+      <path d="M14 3H5v18h14V8l-5-5Zm0 0v5h5M8 12h8M8 16h5" />
+    </>
+  ),
+  email: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="1" />
+      <path d="m3 6 9 7 9-7" />
+    </>
+  ),
+  sms: <path d="M3 4h18v14H8l-5 4V4Zm4 5h10M7 13h7" />,
+  calendar: (
+    <>
+      <rect x="3" y="5" width="18" height="16" rx="1" />
+      <path d="M7 3v4m10-4v4M3 10h18M7 14h3m4 0h3M7 18h3" />
+    </>
+  ),
+  condition: (
+    <>
+      <path d="M12 3v7M5 21v-7h14v7M12 10v4" />
+      <circle cx="12" cy="3" r="2" />
+      <circle cx="5" cy="21" r="2" />
+      <circle cx="19" cy="21" r="2" />
+    </>
+  ),
 };
 
 /** Decorative symbols follow the repository's existing inline SVG convention. */

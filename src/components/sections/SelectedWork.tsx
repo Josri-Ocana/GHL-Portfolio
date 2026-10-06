@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { publishedProjects } from "@/data/projects";
-import { ProjectCard } from "@/components/work/ProjectCard";
+import { featuredWork } from "@/data/featuredWork";
+import { WorksWheel } from "@/components/ui/works-wheel";
+import { DemoVisual } from "@/components/work/DemoVisual";
 import { EmptyWork } from "@/components/work/EmptyWork";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 export function SelectedWork() {
-  const selected = publishedProjects.filter((project) => project.featured).slice(0, 3);
-  const visible = selected.length ? selected : publishedProjects.slice(0, 3);
-  return (
-    <section id="work" className="section wrap">
+  const visible = featuredWork;
+  const header = (
+    <>
       <SectionLabel number="03">PROOF OF WORK</SectionLabel>
       <div className="section-heading" data-reveal>
         <h2>SELECTED WORK.</h2>
@@ -18,15 +18,33 @@ export function SelectedWork() {
       {visible.some((project) => project.isDemo) && (
         <p className="demo-notice micro">DEMO PROJECTS / ILLUSTRATIVE CONCEPTS, NOT CLIENT WORK.</p>
       )}
-      {visible.length ? (
-        <div className="project-grid featured-project-grid">
-          {visible.map((project) => (
-            <ProjectCard key={project.slug} project={project} />
-          ))}
-        </div>
-      ) : (
-        <EmptyWork />
-      )}
+    </>
+  );
+  return visible.length ? (
+    <WorksWheel
+      id="work"
+      className="section wrap"
+      header={header}
+      label="SELECTED WORK"
+      action="VIEW CASE STUDY"
+      items={visible.map((project) => ({
+        title: project.title,
+        image: project.coverImage || project.video?.poster,
+        alt: project.coverAlt || `${project.title} concept preview`,
+        href: `/work/${project.slug}`,
+        preview: project.demoVisual ? (
+          <DemoVisual project={project} />
+        ) : (
+          <div className="project-cover-type">
+            <span>{project.title}</span>
+          </div>
+        ),
+      }))}
+    />
+  ) : (
+    <section id="work" className="section wrap">
+      {header}
+      <EmptyWork />
     </section>
   );
 }

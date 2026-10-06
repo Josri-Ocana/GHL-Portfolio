@@ -1,8 +1,12 @@
 import type { Project } from "@/types/project";
 import { projectTimeline } from "@/lib/projectTimeline";
 import Timeline from "@/components/ui/timeline";
+import { WorkflowCanvas } from "@/components/ui/WorkflowCanvas";
+import { projectCanvas } from "@/lib/workflowCanvas";
 
 export function CaseArchitecture({ project }: { project: Project }) {
+  const visualization = project.workflowVisualization;
+  if (visualization?.type === "none") return null;
   return (
     <section className="case-section case-architecture">
       <header className="architecture-heading">
@@ -11,10 +15,22 @@ export function CaseArchitecture({ project }: { project: Project }) {
           <p className="architecture-headline">{project.demoVisual.headline}</p>
         )}
         <p className="micro">
-          {project.isDemo ? "ILLUSTRATIVE ARCHITECTURE / NOT CLIENT WORK" : "PROJECT ARCHITECTURE"}
+          {project.status === "concept"
+            ? "PROPOSED ARCHITECTURE / NOT BUILT OR TESTED"
+            : project.isDemo
+              ? "ILLUSTRATIVE ARCHITECTURE / NOT CLIENT WORK"
+              : "PROJECT ARCHITECTURE"}
         </p>
       </header>
-      <Timeline key={project.slug} milestones={projectTimeline(project)} />
+      {visualization?.type === "canvas" ? (
+        <WorkflowCanvas
+          key={project.slug}
+          {...projectCanvas(project, visualization)}
+          label={`${project.title} — workflow and architecture`}
+        />
+      ) : (
+        <Timeline key={project.slug} milestones={projectTimeline(project)} />
+      )}
     </section>
   );
 }

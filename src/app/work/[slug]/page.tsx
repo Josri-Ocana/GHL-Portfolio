@@ -11,6 +11,9 @@ import { DemoVisual } from "@/components/work/DemoVisual";
 import { CaseArchitecture } from "@/components/work/CaseArchitecture";
 import { caseContent } from "@/lib/projectContent";
 import { safeExternalUrl } from "@/lib/media";
+import { WorkflowCanvas } from "@/components/ui/WorkflowCanvas";
+import { projectCanvas } from "@/lib/workflowCanvas";
+import { projectStatusLabel } from "@/lib/projectStatus";
 export function generateStaticParams() {
   return publishedProjects.map(({ slug }) => ({ slug }));
 }
@@ -20,11 +23,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!project) return { title: "Project not found", robots: { index: false } };
   return {
     ...pageMetadata(
-      project.seo?.title || `${project.isDemo ? "Demo — " : ""}${project.title}`,
+      project.seo?.title ||
+        `${project.status === "concept" ? "Concept — " : project.isDemo || project.status === "built-demo" ? "Demo — " : ""}${project.title}`,
       project.seo?.description || project.description || project.summary,
       `/work/${project.slug}`,
     ),
-    ...(project.isDemo ? { robots: { index: false, follow: true } } : {}),
+    ...(project.isDemo || project.status === "concept" || project.status === "built-demo"
+      ? { robots: { index: false, follow: true } }
+      : {}),
   };
 }
 export default async function CaseStudy({ params }: { params: Promise<{ slug: string }> }) {
@@ -32,20 +38,25 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
   const project = getProject(slug);
   if (!project) notFound();
   const content = caseContent(project);
+  const concept = project.status === "concept";
   const isWebsite = ["Websites", "Funnels"].includes(project.category);
+  const visualization = project.workflowVisualization;
+  const overview = visualization?.type === "timeline" ? visualization.overview : undefined;
   const next =
     publishedProjects[
       (publishedProjects.findIndex((item) => item.slug === slug) + 1) % publishedProjects.length
     ];
-  const links = [
-    { label: "Visit live site", url: project.liveUrl },
-    { label: "View repository", url: project.repositoryUrl },
-    ...(project.resources || []),
-  ].filter((link) => safeExternalUrl(link.url));
+  const links = concept
+    ? []
+    : [
+        { label: "Visit live site", url: project.liveUrl },
+        { label: "View repository", url: project.repositoryUrl },
+        ...(project.resources || []),
+      ].filter((link) => safeExternalUrl(link.url));
   return (
     <PageMotion>
       <main id="main" className="wrap case-page">
-        {!project.isDemo && (
+        {!project.isDemo && !concept && project.status !== "built-demo" && (
           <JsonLd
             data={[
               {
@@ -90,10 +101,19 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
         </nav>
         <header className="case-header">
           <p className="micro">
-            {project.isDemo && "DEMO PROJECT / "}
+            {concept
+              ? "CONCEPT / "
+              : project.status
+                ? `${projectStatusLabel(project)} / `
+                : project.isDemo && "DEMO PROJECT / "}
             {project.category} {project.year && `/ ${project.year}`}
           </p>
           <h1>{project.title}</h1>
+          {concept && (
+            <p className="micro">
+              PROPOSED SYSTEM — NOT YET IMPLEMENTED, TESTED OR DELIVERED TO A CLIENT.
+            </p>
+          )}
           <p className="lead">{project.summary}</p>
           <dl className="case-facts">
             {project.role && (
@@ -103,13 +123,13 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
               </div>
             )}
             <div>
-              <dt>TOOLS</dt>
+              <dt>{concept ? "PROPOSED TOOLS" : "TOOLS"}</dt>
               <dd>{project.tools.join(" / ")}</dd>
             </div>
             {project.status && (
               <div>
                 <dt>STATUS</dt>
-                <dd>{project.status}</dd>
+                <dd>{projectStatusLabel(project)}</dd>
               </div>
             )}
             {project.confidential ? (
@@ -130,7 +150,7 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
         <div className="case-sections">
           {content.challenge.length > 0 && (
             <section className="case-text" data-reveal>
-              <h2>Challenge</h2>
+              <h2>{concept ? "Business Problem" : "Challenge"}</h2>
               <div>
                 {content.challenge.map((text) => (
                   <p key={text}>{text}</p>
@@ -140,14 +160,20 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
           )}
           {project.solution && (
             <section className="case-text" data-reveal>
-              <h2>Solution</h2>
+              <h2>{concept ? "Proposed Solution" : "Solution"}</h2>
               <p>{project.solution}</p>
             </section>
           )}
         </div>
-        {(project.coverImage || (isWebsite && project.demoVisual)) && (
+        {!concept && (project.coverImage || (isWebsite && project.demoVisual) || overview) && (
           <section className="case-section">
-            <h2>{isWebsite ? "DESKTOP PREVIEW" : "PROJECT PREVIEW"}</h2>
+            <h2>
+              {isWebsite
+                ? "DESKTOP PREVIEW"
+                : overview && !project.coverImage
+                  ? "SYSTEM OVERVIEW"
+                  : "PROJECT PREVIEW"}
+            </h2>
             {project.coverImage ? (
               <Image
                 className="case-cover"
@@ -157,12 +183,23 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
                 height={1000}
                 sizes="(max-width: 900px) 100vw, 85vw"
               />
+            ) : overview ? (
+              <>
+                <p className="micro workflow-canvas-caption">
+                  KEY HANDOFFS / FULL DECISION LOGIC BELOW
+                </p>
+                <WorkflowCanvas
+                  key={`${project.slug}-overview`}
+                  {...projectCanvas(project, overview)}
+                  label={`${project.title} — simplified system overview`}
+                />
+              </>
             ) : (
               <DemoVisual project={project} />
             )}
           </section>
         )}
-        {project.mobileImage && (
+        {!concept && project.mobileImage && (
           <section className="case-section">
             <h2>MOBILE PREVIEW</h2>
             <Image
@@ -175,28 +212,32 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
             />
           </section>
         )}
-        {!!project.workflowSteps?.length && !isWebsite && <CaseArchitecture project={project} />}
-        {!!project.workflowSteps?.length && isWebsite && (
-          <section className="case-section">
-            <h2>{isWebsite ? "PAGE TO CRM" : "WORKFLOW & ARCHITECTURE"}</h2>
-            <ol className="case-workflow">
-              {project.workflowSteps.map((step, i) => (
-                <li key={`${step.title}-${i}`}>
-                  <span className="micro">{String(i + 1).padStart(2, "0")} →</span>
-                  <h3>{step.title}</h3>
-                  {step.description && <p>{step.description}</p>}
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-        {(project.video || (project.isDemo && project.demoVideoSlot)) && (
-          <section className="case-section">
-            <h2>VIDEO WALKTHROUGH</h2>
-            <ProjectWalkthrough project={project} />
-          </section>
-        )}
-        {!!project.gallery?.length && (
+        {(!!project.workflowSteps?.length ||
+          (visualization?.type === "canvas" && !!visualization.nodes?.length)) &&
+          (!isWebsite || concept) && <CaseArchitecture project={project} />}
+        {(!!project.workflowSteps?.length ||
+          (visualization?.type === "canvas" && !!visualization.nodes?.length)) &&
+          isWebsite &&
+          !concept &&
+          visualization?.type !== "none" && (
+            <section className="case-section">
+              <h2>{isWebsite ? "PAGE TO CRM" : "WORKFLOW & ARCHITECTURE"}</h2>
+              <WorkflowCanvas
+                key={`${project.slug}-page-to-crm`}
+                interaction="drag-nodes"
+                {...projectCanvas(project, visualization?.type === "canvas" ? visualization : {})}
+                label={`${project.title} — page to CRM`}
+              />
+            </section>
+          )}
+        {!concept &&
+          (project.video || (project.isDemo && !project.status && project.demoVideoSlot)) && (
+            <section className="case-section">
+              <h2>VIDEO WALKTHROUGH</h2>
+              <ProjectWalkthrough project={project} />
+            </section>
+          )}
+        {!concept && !!project.gallery?.length && (
           <section className="case-section">
             <h2>A CLOSER LOOK</h2>
             <div className="gallery">
@@ -217,8 +258,12 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
         )}
         {[
           {
-            title: isWebsite ? "Build details" : "Implementation notes",
-            items: project.implementationNotes,
+            title: concept
+              ? "Implementation Plan"
+              : isWebsite
+                ? "Build details"
+                : "Implementation notes",
+            items: concept ? project.implementationPlan : project.implementationNotes,
           },
           {
             title: content.outcomeTitle,

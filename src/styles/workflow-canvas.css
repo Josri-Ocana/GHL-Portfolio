@@ -1,0 +1,263 @@
+/* Read-only project maps. These rules do not target the cinematic timeline. */
+.workflow-canvas-caption {
+  margin-bottom: 18px;
+  color: var(--muted);
+}
+.workflow-canvas {
+  position: relative;
+  padding: 32px;
+  border: 1px solid var(--line);
+  background: var(--warm);
+  isolation: isolate;
+}
+.workflow-canvas-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 72px 56px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.workflow-canvas-node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-column: var(--node-column);
+  grid-row: var(--node-row);
+  min-width: 0;
+  min-height: 196px;
+  padding: 20px;
+  border: 1px solid #d4d4d4;
+  background: var(--paper);
+  overflow-wrap: anywhere;
+  scroll-margin-top: 110px;
+}
+.workflow-canvas-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.workflow-canvas-marker {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border: 1px solid #a3a3a3;
+}
+.workflow-canvas-node > .workflow-icon {
+  margin: 17px 0 12px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.workflow-canvas-node h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(16px, 1.4vw, 20px);
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+.workflow-canvas-description {
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.workflow-canvas-routes {
+  padding: 0;
+  margin: 12px 0 0;
+  list-style: none;
+  font-size: 12px;
+}
+.workflow-canvas-routes a {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.workflow-canvas-branch {
+  border-left: 2px solid var(--color-accent);
+  padding-left: 7px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.workflow-canvas-node[data-state="current"] {
+  border-color: var(--ink);
+}
+.workflow-canvas-node[data-state="current"] .workflow-icon {
+  color: var(--color-accent);
+}
+.workflow-canvas-node[data-state="current"] .workflow-canvas-marker {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+.workflow-canvas-node[data-state="completed"] .workflow-icon {
+  color: var(--charcoal);
+}
+.workflow-canvas-node[data-state="completed"] .workflow-canvas-marker {
+  background: var(--charcoal);
+  border-color: var(--charcoal);
+}
+.workflow-canvas-node[data-state="upcoming"] .workflow-icon {
+  color: #737373;
+}
+.workflow-canvas-connectors {
+  position: absolute;
+  top: 32px;
+  left: 32px;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+  stroke: #c4c4c4;
+}
+.workflow-canvas-connectors [data-state="current"] path {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+.workflow-canvas-connectors [data-state="completed"] {
+  stroke: var(--charcoal);
+}
+@media (max-width: 899px) {
+  .workflow-canvas {
+    padding: 24px 12px;
+  }
+  .workflow-canvas-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: 24px;
+    gap: 48px;
+  }
+  .workflow-canvas-node {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 0;
+    padding: 20px;
+  }
+  .workflow-canvas-node h3 {
+    font-size: 19px;
+  }
+  .workflow-canvas-connectors {
+    top: 24px;
+    left: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workflow-canvas *,
+  .workflow-canvas *::before,
+  .workflow-canvas *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Page to CRM alone adopts the supplied component's positioned, draggable workspace. */
+.workflow-canvas--interactive {
+  padding: 0;
+  overflow: hidden;
+}
+.workflow-canvas-instructions {
+  padding: 16px 0;
+  color: var(--muted);
+  font-size: 9px;
+}
+.workflow-canvas-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 8px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.workflow-canvas-count {
+  color: var(--muted);
+  font-size: 9px;
+}
+.workflow-canvas-viewport {
+  overflow: auto;
+  height: 360px;
+  max-width: 100%;
+  scrollbar-width: none;
+}
+.workflow-canvas-viewport::-webkit-scrollbar {
+  display: none;
+}
+.workflow-canvas-viewport:focus-visible,
+.workflow-canvas--interactive .workflow-canvas-node:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -3px;
+}
+.workflow-canvas-track {
+  position: relative;
+  width: max-content;
+  background-image: radial-gradient(circle, rgb(23 23 23 / 13%) 0.75px, transparent 0.85px);
+  background-size: 24px 24px;
+}
+.workflow-canvas--interactive .workflow-canvas-grid {
+  display: block;
+  padding: 0;
+}
+.workflow-canvas--interactive .workflow-canvas-node {
+  position: absolute;
+  min-height: 196px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  box-shadow: 0 2px 10px rgb(23 23 23 / 3%);
+  transform-origin: left center;
+  transform: translate(calc((1 - var(--node-reveal, 1)) * 40px), calc((1 - var(--node-reveal, 1)) * 24px))
+    scale(calc(0.94 + var(--node-reveal, 1) * 0.06));
+  opacity: var(--node-reveal, 1);
+  clip-path: inset(0 calc((1 - var(--node-reveal, 1)) * 12%) calc((1 - var(--node-reveal, 1)) * 18%) 0);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.workflow-canvas--interactive .workflow-canvas-node[data-state="current"] {
+  box-shadow: 0 6px 20px rgb(23 23 23 / 8%);
+}
+.workflow-canvas--interactive .workflow-icon,
+.workflow-canvas--interactive .workflow-canvas-marker,
+.workflow-canvas--interactive .workflow-canvas-connectors path {
+  transition: color 180ms ease, stroke 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+.workflow-canvas--interactive .workflow-canvas-node h3 {
+  transform: translateY(calc((1 - var(--node-reveal, 1)) * 12px));
+}
+.workflow-canvas--interactive .workflow-canvas-description {
+  transform: translateY(calc((1 - var(--node-reveal, 1)) * 18px));
+  opacity: clamp(0, calc((var(--node-reveal, 1) - 0.15) * 1.5), 1);
+}
+.workflow-canvas--interactive .workflow-canvas-node[data-revealing] .workflow-icon,
+.workflow-canvas--interactive .workflow-canvas-connectors [data-revealing] {
+  color: var(--color-accent);
+  stroke: var(--color-accent);
+}
+.workflow-canvas--interactive .workflow-canvas-node[data-dragging] {
+  z-index: 2;
+  cursor: grabbing;
+  border-color: var(--ink);
+}
+.workflow-canvas--interactive .workflow-canvas-connectors {
+  top: 0;
+  left: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .workflow-canvas--interactive .workflow-canvas-node,
+  .workflow-canvas--interactive .workflow-canvas-node h3,
+  .workflow-canvas--interactive .workflow-canvas-description {
+    transform: none;
+    opacity: 1;
+    clip-path: none;
+  }
+  .workflow-canvas--interactive .workflow-canvas-connectors path {
+    stroke-dashoffset: 0 !important;
+  }
+}

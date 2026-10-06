@@ -1,4 +1,5 @@
 import type { Project } from "@/types/project";
+import { projectStatusLabel } from "@/lib/projectStatus";
 /** Original text-based documentation, never a screenshot of a real product. */
 export function DemoVisual({ project }: { project: Project }) {
   const visual = project.demoVisual;
@@ -7,7 +8,7 @@ export function DemoVisual({ project }: { project: Project }) {
     <div className={`demo-visual demo-visual--${visual.kind}`}>
       <div className="demo-visual-top micro">
         <span>CONCEPT / {project.number}</span>
-        <span>DEMO PROJECT</span>
+        <span>{projectStatusLabel(project) || "DEMO PROJECT"}</span>
       </div>
       <p className="demo-headline">{visual.headline}</p>
       <ol className="demo-nodes">

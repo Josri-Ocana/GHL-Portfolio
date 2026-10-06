@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { publishedProjects } from "@/data/projects";
 import { projectCategories } from "@/types/project";
+import { archiveCategory, workCategories } from "@/lib/projectStatus";
 import { pageMetadata } from "@/data/seo";
 import { ProjectCard } from "@/components/work/ProjectCard";
 import { EmptyWork } from "@/components/work/EmptyWork";
@@ -28,9 +29,15 @@ export default async function Work({
   searchParams: Promise<{ category?: string }>;
 }) {
   const { category } = await searchParams;
-  const active = projectCategories.find((value) => value === category);
+  const valid = projectCategories.find((value) => value === category);
+  const active =
+    valid === "Funnels"
+      ? "Websites"
+      : valid === "Workflow" || valid === "GoHighLevel"
+        ? "Automation"
+        : valid;
   const filtered = active
-    ? publishedProjects.filter((project) => project.category === active)
+    ? publishedProjects.filter((project) => archiveCategory(project) === active)
     : publishedProjects;
   return (
     <main id="main" className="wrap work-page">
@@ -43,7 +50,7 @@ export default async function Work({
         </h1>
         <div className="intro-bottom">
           <p>
-            What was built. How it connects.
+            System architecture. How it connects.
             <br />
             The thinking behind the system.
           </p>
@@ -57,8 +64,14 @@ export default async function Work({
           DEMO PROJECTS ARE ILLUSTRATIVE CONCEPTS, NOT CLIENT WORK.
         </p>
       )}
+      {publishedProjects.some((project) => project.status === "concept") && (
+        <p className="demo-notice micro">
+          CONCEPTS ARE PROPOSED SYSTEMS TO BUILD AND DEMONSTRATE — NOT IMPLEMENTED, TESTED OR
+          CLIENT-DELIVERED WORK.
+        </p>
+      )}
       <nav className="filter-list" aria-label="Filter projects by category">
-        {["All", ...projectCategories].map((item) => (
+        {["All", ...workCategories].map((item) => (
           <Link
             key={item}
             href={item === "All" ? "/work" : `/work?category=${encodeURIComponent(item)}`}
@@ -69,7 +82,7 @@ export default async function Work({
             <span>
               {item === "All"
                 ? publishedProjects.length
-                : publishedProjects.filter((project) => project.category === item).length}
+                : publishedProjects.filter((project) => archiveCategory(project) === item).length}
             </span>
           </Link>
         ))}

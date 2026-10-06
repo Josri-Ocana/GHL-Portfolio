@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Barlow_Condensed, Manrope } from "next/font/google";
 import { siteConfig } from "@/data/site";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
+import { ScrollRestoration } from "@/components/layout/ScrollRestoration";
 import "@/styles/globals.css";
 const display = Barlow_Condensed({
   subsets: ["latin"],
@@ -33,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body id="top">
         <SmoothScroll />
+        <Suspense fallback={null}><ScrollRestoration /></Suspense>
         <a className="skip-link" href="#main">
           Skip to content
         </a>

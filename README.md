@@ -15,6 +15,25 @@ Open http://localhost:3000. Copy `.env.example` to `.env.local` and set `NEXT_PU
 
 ## Validate and build
 
+Use the smallest relevant check for each change:
+
+| Command                   | Purpose                                                                             |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| `npm run verify`          | Quick default: ESLint, strict TypeScript and existing Node/tsx unit tests.          |
+| `npm run test:e2e`        | Chromium route/navigation, browser Back, mobile menu and body-overflow smoke tests. |
+| `npm run test:a11y`       | axe WCAG A/AA smoke checks on home, work and one case study, with reduced motion.   |
+| `npm run check:dead-code` | Knip analysis; review findings before removing anything.                            |
+| `npm run build`           | Production compilation and static route generation.                                 |
+| `npm audit`               | Dependency advisories; do not use forced fixes.                                     |
+
+After `npm ci`, install the browser once with `npx playwright install chromium` (Linux CI may need `npx playwright install --with-deps chromium`). Browser commands automatically build and start production on port 3100; they can reuse a current production server there outside CI. Do not run both browser commands concurrently because they share that server/build and report directories. Reports and failure traces go to ignored `playwright-report/` and `test-results/`; inspect with `npx playwright show-report`. The existing dev server on port 3000 is independent.
+
+Automated accessibility checks do not replace keyboard, screen-reader, physical touch or visual motion review. Knip uses its Next.js/Playwright/config plugins plus explicit Node-test entry points and TypeScript aliases. Findings are review signals, not an automatic deletion list.
+
+On Windows, `check:dead-code` preloads a small script that disables Oxc's experimental raw-transfer parser mode, which intermittently fails buffer allocation on this host. It uses Knip's standard parser without changing analysis coverage. Known findings and the current accessibility baseline are recorded in `HANDOFF.md`; Knip intentionally returns nonzero while findings remain.
+
+Individual checks remain available:
+
 ```sh
 npm run lint
 npm run typecheck
