@@ -20,6 +20,10 @@
   flex-shrink: 0;
   background: var(--paper);
 }
+.works-wheel:not(.works-wheel--static) .works-wheel-header {
+  /* The stage mask reserves this same area without opaque 3D occlusion. */
+  background: transparent;
+}
 .works-wheel:not(.works-wheel--static) .section-label {
   margin-bottom: 18px;
 }

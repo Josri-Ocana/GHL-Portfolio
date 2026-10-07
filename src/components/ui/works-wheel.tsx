@@ -91,7 +91,7 @@ const EASE = 0.12;
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-type Stage = { w: number; h: number; headerH: number };
+type Stage = { w: number; h: number; headerH: number; headerClipH: number };
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
 
@@ -146,7 +146,7 @@ export function WorksWheel({
   const target = React.useRef(0);
   const [active, setActive] = React.useState(0);
   const activeRef = React.useRef(0);
-  const [stage, setStage] = React.useState<Stage>({ w: 0, h: 0, headerH: 0 });
+  const [stage, setStage] = React.useState<Stage>({ w: 0, h: 0, headerH: 0, headerClipH: 0 });
 
   const count = items.length;
   const last = Math.max(count - 1, 0);
@@ -163,6 +163,8 @@ export function WorksWheel({
         w: el.clientWidth,
         h: el.clientHeight,
         headerH: headerRef.current?.clientHeight || 0,
+        // Preserve the existing integer geometry, but mask at the actual subpixel edge.
+        headerClipH: headerRef.current?.getBoundingClientRect().height || 0,
       });
     read();
     const ro = new ResizeObserver(read);
@@ -413,6 +415,9 @@ export function WorksWheel({
         style={{
           perspective: `${metrics.depth}px`,
           perspectiveOrigin: `45% ${stage.headerH + 24 + Math.max(0, stage.h - stage.headerH - 40) / 2}px`,
+          // Reserve the existing header area explicitly: an opaque sibling background
+          // intermittently over-occludes moving 3D card surfaces in Chrome.
+          clipPath: `inset(${stage.headerClipH}px 0 0 0)`,
         }}
         onPointerDown={(event) => {
           if (event.button !== 0) return;
