@@ -24,7 +24,8 @@ export function sectionTransitions(root: HTMLElement, { desktop, tablet }: Motio
   const faq = root.querySelector("#faq");
   const contact = root.querySelector("#contact");
 
-  if (services) {
+  // The portal owns the services boundary on eligible desktop/tablet screens.
+  if (services && !(services.closest(".glyph-portal") && wide)) {
     scrub(services)
       .from(services.querySelector(".section-heading"), {
         clipPath: "inset(0 0 100% 0)",

@@ -14,6 +14,7 @@ export const siteConfig = {
   socials: { linkedin: "", github: "" },
   hero: {
     headline: ["GOOD LEADS.", "BETTER SYSTEMS."],
+    revealHeadline: ["LESS CHAOS.", "MORE CONTROL."],
     introduction: "GoHighLevel Automation Specialist building CRM systems that move leads forward.",
     supporting:
       "CRM automation, funnels, websites, and integrations for agencies and service businesses—from lead capture to follow-up.",

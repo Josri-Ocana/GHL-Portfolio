@@ -6,8 +6,15 @@ export function editorialTimeline(root: HTMLElement, { desktop, tablet }: Motion
   const select = gsap.utils.selector(root);
   const hero = root.querySelector<HTMLElement>(".hero");
   if (hero) {
+    const heading = hero.querySelector<HTMLElement>("[data-magnetic-heading]");
+    if (heading) delete heading.dataset.heroReady;
     gsap
-      .timeline({ defaults: { ease: motion.ease, clearProps: "all" } })
+      .timeline({
+        defaults: { ease: motion.ease, clearProps: "all" },
+        onComplete: () => {
+          if (heading) heading.dataset.heroReady = "true";
+        },
+      })
       .from(select(".hero-eyebrow"), { y: 12, opacity: 0, duration: 0.5 })
       .from(
         select("[data-hero-line]"),

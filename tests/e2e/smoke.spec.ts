@@ -6,6 +6,186 @@ import { wheelScrollUnits } from "../../src/lib/worksWheel";
 
 const routes = ["/", "/work", "/work/demo-local-service"];
 
+test("hero magnetic reveal preserves layout, text alignment and accessible fallbacks", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  for (const width of [1024, 1440, 1920]) {
+    await page.setViewportSize({ width, height: width === 1920 ? 1080 : 900 });
+    await page.goto("/");
+    const heading = page.locator("#hero-title");
+    await expect(heading).toHaveAttribute("data-hero-ready", "true");
+    await expect(page.locator("main h1")).toHaveCount(1);
+    await expect(heading).toHaveAccessibleName(/GOOD LEADS\.\s*BETTER SYSTEMS\./);
+    const baseline = await heading.evaluate((el) => {
+      const wrapper = el.parentElement!;
+      const bounds = () => ({
+        heading: el.getBoundingClientRect().toJSON(),
+        bottom: document.querySelector(".hero-bottom")!.getBoundingClientRect().toJSON(),
+      });
+      const before = bounds();
+      wrapper.replaceWith(el);
+      const unwrapped = bounds();
+      el.replaceWith(wrapper);
+      wrapper.prepend(el);
+      return { before, unwrapped };
+    });
+    expect(baseline.before).toEqual(baseline.unwrapped);
+    const box = await heading.boundingBox();
+    expect(box).not.toBeNull();
+    const circle = page.locator(".magnetic-text-circle");
+    await page.mouse.move(box!.x + box!.width * 0.25, box!.y + box!.height * 0.25);
+    await expect(heading).toHaveCSS("cursor", "none");
+    await expect
+      .poll(() => circle.evaluate((el) => el.getBoundingClientRect().width))
+      .toBeCloseTo(width === 1024 ? 220 : width === 1440 ? 270 : 300, 1);
+    const aligned = await page.locator(".magnetic-text-alternate").evaluate((el) => {
+      const heading = document.querySelector("#hero-title")!;
+      const base = heading.getBoundingClientRect(),
+        alt = el.getBoundingClientRect();
+      const a = getComputedStyle(el),
+        b = getComputedStyle(heading);
+      return {
+        dx: alt.x - base.x,
+        dy: alt.y - base.y,
+        width: alt.width - base.width,
+        height: alt.height - base.height,
+        font: [
+          "fontFamily",
+          "fontSize",
+          "fontWeight",
+          "letterSpacing",
+          "lineHeight",
+          "textAlign",
+        ].every(
+          (key) => a[key as keyof CSSStyleDeclaration] === b[key as keyof CSSStyleDeclaration],
+        ),
+        lines: [...el.querySelectorAll(":scope > .line-mask")].map((line) => line.textContent),
+      };
+    });
+    for (const delta of [aligned.dx, aligned.dy, aligned.width, aligned.height])
+      expect(Math.abs(delta)).toBeLessThan(1);
+    expect(aligned.font).toBe(true);
+    expect(aligned.lines).toEqual(["LESS CHAOS.", "MORE CONTROL."]);
+    for (const x of [box!.x + 1, box!.x + box!.width - 1]) {
+      await page.mouse.move(x, box!.y + box!.height / 2);
+      await expect
+        .poll(() =>
+          circle.evaluate((el) => {
+            const rect = el.getBoundingClientRect();
+            return rect.left >= -1 && rect.right <= innerWidth + 1;
+          }),
+        )
+        .toBe(true);
+      const registration = await page.locator(".magnetic-text-alternate").evaluate((el) => {
+        const a = el.getBoundingClientRect();
+        const b = document.querySelector("#hero-title")!.getBoundingClientRect();
+        return [a.x - b.x, a.y - b.y];
+      });
+      expect(registration.every((delta) => Math.abs(delta) < 1)).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
+    }
+    for (const fraction of [0.3, 0.35, 0.8, 0.15, 0.9]) {
+      await page.mouse.move(box!.x + box!.width * fraction, box!.y + box!.height * 0.65);
+      await page.waitForTimeout(50);
+    }
+    expect(await heading.evaluate((el) => el.getBoundingClientRect().toJSON())).toEqual(
+      baseline.before.heading,
+    );
+    await page.mouse.move(4, 4);
+    await expect.poll(() => circle.evaluate((el) => el.getBoundingClientRect().width)).toBe(0);
+    await expect(heading).not.toHaveCSS("cursor", "none");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+    ).toBeLessThanOrEqual(1);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.mouse.move(box!.x + 100, box!.y + 60);
+    await expect(circle).toHaveCSS("display", "none");
+    await expect(heading).not.toHaveCSS("cursor", "none");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+  }
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  await expect(page.locator(".magnetic-text-circle")).toHaveCSS("display", "none");
+  await expect(page.locator("#hero-title")).not.toHaveCSS("cursor", "none");
+  await page.locator('.hero-copy a[href="/work"]').focus();
+  await expect(page.locator('.hero-copy a[href="/work"]')).toBeFocused();
+});
+
+test("hero portal reveals What I Build and reverses without changing the later workflow boundary", async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  for (const width of [1024, 1440, 1920]) {
+    await page.setViewportSize({ width, height: width === 1920 ? 1080 : 900 });
+    await page.goto("/");
+    await expect(page.locator(".glyph-portal")).toHaveAttribute("data-gp-motion", "on");
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(500);
+    const portal = page.locator(".glyph-portal");
+    await expect(portal).toHaveAttribute("data-gp-focus", "B");
+    await expect(portal.locator(".glyph-portal-poster")).toHaveText("BUILD.");
+    await expect(portal.locator("#services")).toHaveCount(1);
+    await expect(portal.locator(".workflow-section")).toHaveCount(0);
+    const bounds = await portal.evaluate((el) => {
+      const stage = el.querySelector<HTMLElement>("[data-gp-stage]")!;
+      const spacer = stage.parentElement!;
+      const wheel = document.querySelector<HTMLElement>("#work")!;
+      const hero = document.querySelector<HTMLElement>(".hero")!;
+      return {
+        start: spacer.getBoundingClientRect().top + scrollY,
+        distance: parseFloat(getComputedStyle(spacer).paddingBottom),
+        height: stage.clientHeight,
+        heroEnd: hero.getBoundingClientRect().bottom + scrollY,
+        wheelTop: wheel.getBoundingClientRect().top + scrollY,
+      };
+    });
+    expect(bounds.distance / bounds.height).toBeCloseTo(1.8);
+    expect(bounds.start).toBeGreaterThanOrEqual(bounds.heroEnd - 1);
+    expect(bounds.start + bounds.distance).toBeLessThan(bounds.wheelTop);
+    const travel = async (top: number) => {
+      await page.evaluate((y) => {
+        scrollTo({ top: y, behavior: "instant" });
+        dispatchEvent(new Event("portfolio:scroll-restored"));
+      }, top);
+      await page.waitForTimeout(120);
+    };
+    await travel(bounds.start);
+    const opening = await portal.locator("text").getAttribute("transform");
+    for (const progress of [0.15, 0.4, 0.65, 0.85, 1, 0.85, 0.65, 0.4, 0.15, 0]) {
+      await travel(bounds.start + bounds.distance * progress);
+      const state = await portal.evaluate((el) => ({
+        p: Number(el.getAttribute("data-gp-progress")),
+        stageOpacity: Number((el.querySelector("[data-gp-stage]") as HTMLElement).style.opacity),
+        clip: (el.querySelector("[data-gp-field]") as HTMLElement).style.clipPath,
+        servicesTop: el.querySelector("#services")!.getBoundingClientRect().top,
+        nested: !!el.querySelector("[data-gp-stage] #services"),
+        overflow: document.documentElement.scrollWidth - innerWidth,
+      }));
+      expect(state.p).toBeCloseTo(progress, 2);
+      expect(state.nested).toBe(false);
+      expect(state.overflow).toBeLessThanOrEqual(1);
+      if (progress === 1) {
+        expect(state.stageOpacity).toBe(0);
+        expect(state.clip).toBe("none");
+        expect(Math.abs(state.servicesTop)).toBeLessThan(1);
+        await expect(page.locator("#services h2")).toBeInViewport({ ratio: 1 });
+      }
+      if (progress < 0.78) expect(state.clip).toContain("url(");
+    }
+    expect(await portal.locator("text").getAttribute("transform")).toBe(opening);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(portal).not.toHaveAttribute("data-gp-motion", "on");
+    await expect(portal.locator(".glyph-portal-poster")).toHaveCSS("opacity", "1");
+    expect(await portal.locator(".pin-spacer").count()).toBe(0);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+  }
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  await expect(page.locator(".glyph-portal")).not.toHaveAttribute("data-gp-motion", "on");
+  expect(await page.locator(".glyph-portal .pin-spacer").count()).toBe(0);
+});
+
 test("wheel opens 01 fully, holds, and keeps selection stable across midpoint jitter", async ({
   page,
 }) => {

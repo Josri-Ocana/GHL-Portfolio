@@ -7,6 +7,7 @@ import { Services } from "@/components/sections/Services";
 import { SystemStory } from "@/components/sections/SystemStory";
 import { SelectedWork } from "@/components/sections/SelectedWork";
 import { WorkflowShowcase } from "@/components/sections/WorkflowShowcase";
+import GlyphPortal from "@/components/ui/glyph-portal";
 import { Websites } from "@/components/sections/Websites";
 import { Process } from "@/components/sections/Process";
 import { About } from "@/components/sections/About";
@@ -54,7 +55,9 @@ export default function Home() {
       />
       <PageMotion>
         <Hero />
-        <Services />
+        <GlyphPortal>
+          <Services />
+        </GlyphPortal>
         <SystemStory />
         <SelectedWork />
         <WorkflowShowcase />
