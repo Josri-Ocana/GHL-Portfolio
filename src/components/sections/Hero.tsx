@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { siteConfig } from "@/data/site";
-import { MagneticText } from "@/components/ui/morphing-cursor";
+import { HeroTextReveal } from "@/components/ui/hero-text-reveal";
+import { HeroShutterLine } from "@/components/ui/hero-shutter-line";
 export function Hero() {
   return (
     <section className="hero wrap" aria-labelledby="hero-title">
@@ -10,31 +11,21 @@ export function Hero() {
         </span>
         <span>BUTUAN, PHILIPPINES · WORKING REMOTELY</span>
       </div>
-      <MagneticText hoverLines={siteConfig.hero.revealHeadline}>
+      <HeroTextReveal lines={siteConfig.hero.revealHeadline}>
         <h1 id="hero-title" className="hero-title" data-magnetic-heading>
           {siteConfig.hero.headline.map((line, index) => (
-            <span className="line-mask" key={line}>
-              <span data-hero-line className={index ? "outline-word" : ""}>
-                {line.split(" ").map((word, wordIndex) => (
-                  <span key={word}>
-                    {wordIndex > 0 && " "}
-                    <span data-hero-word>{word}</span>
-                  </span>
-                ))}
-              </span>
-            </span>
+            <HeroShutterLine text={line} outlined={Boolean(index)} key={line} />
           ))}
         </h1>
-      </MagneticText>
+      </HeroTextReveal>
       <div className="hero-bottom" data-hero-meta>
         <div className="hero-index">
-          <span className="crosshair">✳</span>
+          <span className="crosshair" aria-hidden="true">
+            ✳
+          </span>
           <span>
-            STRUCTURE.
-            <br />
-            CONNECT.
-            <br />
-            MOVE FORWARD.
+            <span className="hero-identity-name">{siteConfig.name}</span>
+            <span className="hero-identity-role">{siteConfig.title}</span>
           </span>
         </div>
         <div className="hero-copy">

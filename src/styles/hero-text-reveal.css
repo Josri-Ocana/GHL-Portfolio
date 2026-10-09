@@ -1,0 +1,26 @@
+.hero-text-reveal {
+  position: relative;
+  overflow: clip;
+}
+.hero-reveal-field {
+  position: absolute;
+  pointer-events: none;
+  background: var(--ink);
+  color: var(--paper);
+  clip-path: inset(0 100% 0 0);
+  /* The stationary copy is clipped; neither its bounds nor its origin moves. */
+}
+.hero-reveal-copy {
+  width: 100%;
+  height: 100%;
+}
+@media (min-width: 700px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  [data-reveal-hover="true"] {
+    cursor: col-resize;
+  }
+}
+@media (max-width: 699px), (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .hero-reveal-field {
+    display: none;
+  }
+}

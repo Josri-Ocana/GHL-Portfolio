@@ -146,12 +146,6 @@ export function sectionTransitions(root: HTMLElement, { desktop, tablet }: Motio
         motion.overlap,
       );
     if (wide) {
-      scrub(about, "top 95%", "top 20%").to(q(".skill-groups > div"), {
-        x: (i) => (i % 2 ? 1 : -1) * 35 * strength,
-        scaleX: 0.96,
-        stagger: 0.08,
-        duration: 1,
-      });
       scrub(about, "top 20%", "bottom 65%")
         .to(about.querySelectorAll("[data-letter]"), {
           y: (i) => ((i % 3) - 1) * 8 * strength,

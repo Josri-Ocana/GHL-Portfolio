@@ -1,0 +1,211 @@
+/* The black field continues the existing BUILD zoom. All tokens stay local. */
+#services {
+  --line: #343434;
+  --muted: #b3b3b3;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+#services .section-label > span {
+  color: var(--inverse-muted);
+}
+#services .section-heading {
+  align-items: flex-end;
+  margin-bottom: clamp(48px, 5vw, 80px);
+}
+#services .section-heading h2 {
+  font-size: clamp(52px, 7.3vw, 112px);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+}
+#services .section-heading h2 .type-mask:first-child {
+  color: #929292;
+}
+#services .section-heading > p {
+  color: var(--muted);
+  border-left: 1px solid var(--color-accent);
+  padding-left: 20px;
+  max-width: 275px;
+}
+
+#services .service-list {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 20px;
+}
+#services .service-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  grid-column: span 7;
+  gap: 0;
+  min-width: 0;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid #303030;
+  background: #101010;
+  padding: clamp(24px, 3vw, 44px);
+}
+#services .service-row:nth-child(2),
+#services .service-row:nth-child(3) {
+  grid-column: span 5;
+}
+#services .service-row:last-child {
+  border-bottom: 1px solid #303030;
+}
+#services .service-row::before {
+  left: 0;
+  right: 0;
+  background: #777;
+  z-index: 1;
+}
+#services .row-number {
+  position: absolute;
+  inset: 20px auto auto 24px;
+  font-family: var(--font-display), sans-serif;
+  font-size: 52px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 500;
+  color: #888;
+  padding: 0;
+  z-index: 1;
+}
+#services .service-row h3 {
+  font-size: clamp(27px, 2.6vw, 40px);
+  line-height: 1.13;
+  letter-spacing: -0.045em;
+}
+#services .service-row .micro {
+  font-size: 9px;
+  line-height: 1.8;
+  letter-spacing: 0.075em;
+  margin-top: 14px;
+  color: var(--inverse-muted);
+}
+#services .service-row > p {
+  font-size: 13px;
+  max-width: 480px;
+  color: var(--muted);
+  margin-top: 24px;
+}
+#services .service-row:hover h3 {
+  transform: none;
+}
+
+.service-visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: clamp(210px, 20vw, 285px);
+  margin: 16px -12px 30px;
+  background-image: radial-gradient(#363636 0.75px, transparent 0.75px);
+  background-size: 18px 18px;
+}
+/* Fade only the drafting grid; the diagram and its typography stay crisp. */
+.service-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 25%, #101010 73%);
+}
+.service-visual svg {
+  position: relative;
+  width: 100%;
+  max-width: 610px;
+  height: 100%;
+  overflow: visible;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.service-pane {
+  fill: #151515;
+  stroke: #707070;
+}
+.service-ticket {
+  fill: #202020;
+  stroke: #525252;
+}
+.service-ticket--active {
+  fill: #261a14;
+  stroke: var(--color-accent);
+}
+.service-wire {
+  stroke: #979797;
+}
+.service-route {
+  stroke: var(--color-accent);
+  stroke-width: 1.6;
+}
+.service-pin {
+  fill: #aaa;
+}
+.service-signal {
+  fill: var(--color-accent);
+}
+.service-orbit {
+  stroke: #353535;
+  stroke-dasharray: 3 7;
+}
+[data-service-line] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  #services .service-row {
+    transition: border-color 300ms;
+  }
+  #services .service-row:hover {
+    border-color: #666;
+  }
+  .service-visual svg {
+    transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #services .service-row:hover .service-visual svg {
+    transform: translateY(-5px);
+  }
+}
+@media (max-width: 1099px) {
+  #services .service-row,
+  #services .service-row:nth-child(2),
+  #services .service-row:nth-child(3) {
+    grid-column: span 6;
+  }
+  .service-visual {
+    height: 220px;
+    margin-top: 30px;
+  }
+}
+@media (max-width: 699px) {
+  #services .service-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  #services .service-row,
+  #services .service-row:nth-child(2),
+  #services .service-row:nth-child(3) {
+    grid-column: 1;
+    padding: 24px;
+  }
+  #services .section-heading {
+    align-items: flex-start;
+  }
+  #services .section-heading h2 {
+    font-size: clamp(48px, 12vw, 72px);
+  }
+  #services .section-heading > p {
+    padding-left: 16px;
+  }
+  #services .row-number {
+    font-size: 40px;
+  }
+  .service-visual {
+    height: 185px;
+    margin: 24px -12px 24px;
+  }
+  #services .service-row > p {
+    margin-top: 20px;
+  }
+}

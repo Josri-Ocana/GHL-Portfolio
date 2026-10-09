@@ -18,3 +18,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Keep changes local to the requested feature. Verify replacements before deleting earlier code or documentation.
 - Use `SECURITY.md` when changing forms, APIs, external integrations, dependencies, headers or deployment.
 - Run lint, typecheck, tests, and production build for meaningful implementation changes.
+
+## 21st.dev references
+
+- When asked for a 21st.dev component, animation, effect or UI reference, search the connected 21st.dev MCP/catalog before asking for pasted source; present relevant existing components when useful.
+- Inspect real source, dependencies and existing project conventions first. Avoid duplicate components; install only after the user chooses a component or explicitly requests implementation.
+- Preserve required copyright/license notices, verify accessibility and reduced-motion behavior, and adapt styling to Josri's editorial black/white design.
+
+## Motion development
+
+- Use `MOTION_GUIDELINES.md` when changing animation or scroll interactions. Prefer GSAP for complex choreography; import only the plugins needed by the chosen effect.
+- Preserve the confirmed WorksWheel header-boundary clipping/compositing fix and signature scene behavior. Do not introduce competing scroll or animated-property owners.

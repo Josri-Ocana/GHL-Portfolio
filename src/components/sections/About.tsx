@@ -1,27 +1,10 @@
-import { skillGroups } from "@/data/skills";
+import { Tools } from "@/components/sections/Tools";
 import { homepageCopy } from "@/data/homepage";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 export function About() {
   return (
     <>
-      <section className="tools-section section wrap">
-        <SectionLabel number="07">THE TOOLKIT</SectionLabel>
-        <div className="tools-layout">
-          <h2>
-            RIGHT TOOL.
-            <br />
-            CLEAR PURPOSE.
-          </h2>
-          <div className="skill-groups">
-            {skillGroups.map((group) => (
-              <div key={group.title}>
-                <h3>{group.title}</h3>
-                <p>{group.tools.join(" / ")}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Tools />
       <section id="about" className="about-section section inverted">
         <div className="wrap">
           <SectionLabel number="08">THE PERSON BEHIND THE SYSTEM</SectionLabel>

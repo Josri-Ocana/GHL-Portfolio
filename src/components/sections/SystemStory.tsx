@@ -2,21 +2,19 @@
 import { useMotionScene } from "@/hooks/useMotionScene";
 import { systemTimeline } from "@/components/animations/systemTimeline";
 import { homepageCopy } from "@/data/homepage";
+import { systemOverviewNodes } from "@/data/systemOverview";
+import "@/styles/system-overview.css";
 
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
-const nodes = [
-  { name: "Landing page", meta: "01 / CAPTURE", position: "node-one" },
-  { name: "Form & survey", meta: "02 / QUALIFY", position: "node-two" },
-  { name: "CRM & pipeline", meta: "03 / ORGANIZE", position: "node-three" },
-  { name: "Email & SMS", meta: "04 / FOLLOW UP", position: "node-four" },
-  { name: "API & webhook", meta: "05 / CONNECT", position: "node-five" },
-  { name: "Appointment", meta: "06 / BOOK", position: "node-six" },
-];
 export function SystemStory() {
   const root = useMotionScene<HTMLElement>(systemTimeline);
   return (
-    <section ref={root} className="system-section inverted" aria-labelledby="system-title">
+    <section
+      ref={root}
+      className="system-section system-overview inverted"
+      aria-labelledby="system-title"
+    >
       <div className="system-to-work-canvas" aria-hidden="true" />
       <div className="wrap">
         <div className="system-top">
@@ -42,14 +40,15 @@ export function SystemStory() {
             preserveAspectRatio="none"
             aria-hidden="true"
           >
-            <path d="M170 65H350V180H500" />
-            <path d="M830 65H650V180H500" />
-            <path d="M170 180H500" />
-            <path d="M830 180H500" />
-            <path d="M170 295H350V180H500" />
-            <path d="M830 295H650V180H500" />
+            <path d="M500 180H350V65H170" />
+            <path d="M500 180H650V65H830" />
+            <path d="M500 180H170" />
+            <path d="M500 180H830" />
+            <path d="M500 180H350V295H170" />
+            <path d="M500 180H650V295H830" />
           </svg>
           <div className="system-core">
+            <span className="system-core-pulse" aria-hidden="true" />
             <span className="micro">THE STARTING POINT</span>
             <span className="micro core-workflow">WORKFLOW / AUTOMATION</span>
             <strong>LEAD</strong>
@@ -57,12 +56,35 @@ export function SystemStory() {
               <i className="status-dot" /> CONNECTED TO THE NEXT STEP
             </span>
           </div>
-          {nodes.map((node) => (
+          {systemOverviewNodes.map((node, i) => (
             <div key={node.name} className={`system-node ${node.position}`} data-system-node>
-              <span className="micro">{node.meta}</span>
+              <span className="system-node-number" aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="micro">
+                {String(i + 1).padStart(2, "0")} / {node.stage}
+              </span>
+              <svg
+                className="system-node-symbol"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.25"
+                aria-hidden="true"
+              >
+                <path d={node.symbol} />
+              </svg>
               <strong>{node.name}</strong>
               <span className="node-port" aria-hidden="true" />
             </div>
+          ))}
+        </div>
+        <div className="system-sequence" aria-hidden="true">
+          {systemOverviewNodes.map((node, i) => (
+            <span key={node.stage}>
+              <i data-system-progress />
+              <b>{String(i + 1).padStart(2, "0")}</b> {node.stage}
+            </span>
           ))}
         </div>
         <p className="system-conclusion">

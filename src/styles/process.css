@@ -1,0 +1,149 @@
+.process-boundary {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 0 22px 40px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.process-track {
+  position: relative;
+}
+
+.process-sequence {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 40px;
+}
+
+.process-rail {
+  position: absolute;
+  inset: 0 auto 0 5px;
+  width: 1px;
+  background: var(--line);
+  pointer-events: none;
+}
+
+.process-progress {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: top;
+}
+
+.process-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr) minmax(240px, 0.85fr);
+  gap: 24px;
+  align-items: center;
+  min-height: 148px;
+  padding: 30px 0;
+  border-top: 1px solid var(--line);
+}
+
+.process-stage:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.process-marker {
+  position: absolute;
+  left: -39px;
+  top: calc(50% - 4px);
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--muted);
+  background: var(--paper);
+}
+
+.process-step-number {
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 1;
+  color: var(--muted);
+}
+
+#process .process-stage h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(44px, 4.7vw, 72px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+.process-stage p {
+  max-width: 370px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.process-stage[data-process-state="current"] .process-step-number {
+  color: var(--color-accent);
+}
+
+.process-stage[data-process-state="current"] .process-marker {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  transform: scale(1.4);
+}
+
+.process-stage[data-process-state="complete"] .process-marker {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+@media (max-width: 1099px) {
+  .process-stage {
+    grid-template-columns: 65px minmax(0, 1fr) minmax(210px, 0.85fr);
+    gap: 18px;
+  }
+  .process-step-number {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 699px) {
+  .process-boundary {
+    padding-left: 28px;
+    font-size: 9px;
+    gap: 16px;
+  }
+  .process-boundary span {
+    max-width: 130px;
+  }
+  .process-boundary span:last-child {
+    text-align: right;
+  }
+  .process-sequence {
+    padding-left: 28px;
+  }
+  .process-stage {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 14px;
+    min-height: 170px;
+    padding: 26px 0;
+  }
+  .process-marker {
+    left: -27px;
+    top: 44px;
+  }
+  .process-step-number {
+    font-size: 38px;
+  }
+  #process .process-stage h3 {
+    font-size: clamp(36px, 10vw, 48px);
+  }
+  .process-stage p {
+    grid-column: 2;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+}

@@ -3,115 +3,323 @@ import { conceptProjects } from "../../src/data/conceptProjects";
 import { publishedProjects } from "../../src/data/projects";
 import { archiveCategory, workCategories } from "../../src/lib/projectStatus";
 import { wheelScrollUnits } from "../../src/lib/worksWheel";
+import { skillGroups } from "../../src/data/skills";
 
 const routes = ["/", "/work", "/work/demo-local-service"];
 
-test("hero magnetic reveal preserves layout, text alignment and accessible fallbacks", async ({
+test("toolkit index preserves every verified tool and stays readable without motion", async ({
+  page,
+}) => {
+  for (const width of [1440, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/#tools");
+    const section = page.locator("#tools");
+    const entries = section.getByRole("article");
+    await expect(entries).toHaveCount(skillGroups.length);
+    for (const [index, group] of skillGroups.entries()) {
+      const entry = entries.nth(index);
+      await expect(entry.getByRole("heading", { name: group.title, exact: true })).toBeVisible();
+      await expect(entry.getByRole("listitem")).toHaveText([...group.tools]);
+      await expect(entry).toHaveCSS("opacity", "1");
+      await expect(entry).toHaveCSS("transform", "none");
+    }
+    const height = (await section.boundingBox())!.height;
+    await entries.first().hover();
+    expect(Math.abs((await section.boundingBox())!.height - height)).toBeLessThan(1);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(entries.first().locator(".toolkit-ordinal")).toHaveCSS(
+      "transition-duration",
+      "0s",
+    );
+    await expect(section.getByRole("listitem")).toHaveCount(
+      skillGroups.reduce((total, group) => total + group.tools.length, 0),
+    );
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+  }
+});
+
+test("process rail reverses without hiding copy or moving the ordered stages", async ({ page }) => {
+  test.setTimeout(60_000);
+  for (const width of [1440, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await expect(page.locator("#hero-title")).toHaveAttribute("data-hero-ready", "true");
+    await page.evaluate(() => document.fonts.ready);
+    const stages = page.locator(".process-stage");
+    await expect(stages).toHaveCount(6);
+    const geometry = await page.locator(".process-track").evaluate((el) => ({
+      top: el.getBoundingClientRect().top + scrollY,
+      height: el.clientHeight,
+    }));
+    const travel = async (fraction: number) => {
+      await page.evaluate(
+        (y) => {
+          scrollTo({ top: y, behavior: "instant" });
+          dispatchEvent(new Event("portfolio:scroll-restored"));
+        },
+        geometry.top - 585 + (geometry.height + 90) * fraction,
+      );
+      await page.waitForTimeout(1000);
+    };
+    await travel(0.5);
+    const forward = await stages.evaluateAll((els) =>
+      els.map((el) => el.getAttribute("data-process-state")),
+    );
+    expect(forward.filter((state) => state === "current")).toHaveLength(1);
+    await travel(1);
+    await expect(stages.last()).toHaveAttribute("data-process-state", "current");
+    await travel(0.5);
+    expect(
+      await stages.evaluateAll((els) => els.map((el) => el.getAttribute("data-process-state"))),
+    ).toEqual(forward);
+    for (const stage of await stages.all()) {
+      await expect(stage).toHaveCSS("transform", "none");
+      await expect(stage.locator("h3")).toHaveCSS("opacity", "1");
+      await expect(stage.locator("p")).toHaveCSS("opacity", "1");
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(page.locator(".process-progress")).toHaveCSS("transform", "none");
+    await expect(page.locator(".process-stage[data-process-state]")).toHaveCount(0);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+  }
+});
+
+test("website showcase switches accessibly without layout shifts or interrupted animation remnants", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  for (const width of [1440, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await page.evaluate(() => document.fonts.ready);
+    const section = page.locator("#websites");
+    const buttons = section.locator(".showcase-select");
+    await buttons.first().focus();
+    await page.waitForTimeout(1000);
+    const height = (await section.boundingBox())!.height;
+    const frameSize = await section.locator('[data-active="true"] .showcase-preview').boundingBox();
+    for (let index = 0; index < 4; index++) {
+      await buttons.nth(index).focus();
+      await page.keyboard.press("Enter");
+      await expect(buttons.nth(index)).toHaveAttribute("aria-pressed", "true");
+      const active = section.locator('[data-showcase-panel][data-active="true"]');
+      await expect(active).toHaveCount(1);
+      for (let sample = 0; sample < 3; sample++) {
+        const frame = active.locator(".showcase-preview");
+        await expect(frame).toHaveCSS("clip-path", "none");
+        const bounds = (await frame.boundingBox())!;
+        expect(Math.abs(bounds.width - frameSize!.width)).toBeLessThan(1);
+        expect(Math.abs(bounds.height - frameSize!.height)).toBeLessThan(1);
+        expect(
+          await active.locator(".showcase-content").evaluate((el) => +getComputedStyle(el).opacity),
+        ).toBeGreaterThanOrEqual(0.8);
+        await page.waitForTimeout(40);
+      }
+      await expect(active.getByRole("link", { name: "View case study" })).toBeVisible();
+      expect(Math.abs((await section.boundingBox())!.height - height)).toBeLessThan(1);
+      for (const inactive of await section.locator('[data-active="false"]').all()) {
+        await expect(inactive).toHaveAttribute("inert", "");
+        await expect(inactive).toHaveAttribute("aria-hidden", "true");
+      }
+    }
+    await buttons.evaluateAll((elements) => {
+      for (const index of [0, 3, 1, 2, 0, 3]) (elements[index] as HTMLButtonElement).click();
+    });
+    await expect(buttons.last()).toHaveAttribute("aria-pressed", "true");
+    await expect(section.locator('[data-active="true"] .showcase-preview')).toHaveCSS(
+      "clip-path",
+      "none",
+    );
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await buttons.nth(1).click();
+    await expect(section.locator('[data-active="true"] .showcase-preview')).toHaveCSS(
+      "clip-path",
+      "none",
+    );
+    await expect(section.locator('[data-active="true"] .showcase-caption')).toHaveCSS(
+      "opacity",
+      "1",
+    );
+    await expect(section.locator('[data-active="true"] a')).toHaveAttribute(
+      "href",
+      "/work/demo-consultation-funnel",
+    );
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+  }
+});
+
+test("system overview assembles sequentially, reverses and keeps reduced-motion content readable", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  for (const width of [1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await expect(page.locator("#hero-title")).toHaveAttribute("data-hero-ready", "true");
+    await page.evaluate(() => document.fonts.ready);
+    const section = page.locator(".system-overview");
+    await expect(section).toHaveClass(/system-cinematic/);
+    const bounds = await section.evaluate((el) => ({
+      start: el.parentElement!.getBoundingClientRect().top + scrollY - 8,
+      distance: parseFloat(getComputedStyle(el.parentElement!).paddingBottom),
+    }));
+    const travel = async (fraction: number) => {
+      await page.evaluate(
+        (y) => {
+          scrollTo({ top: y, behavior: "instant" });
+          dispatchEvent(new Event("portfolio:scroll-restored"));
+        },
+        bounds.start + bounds.distance * fraction,
+      );
+      await page.waitForTimeout(1000);
+    };
+    const nodes = section.locator("[data-system-node]");
+    await travel(0.16);
+    await expect(nodes.first()).toHaveCSS("opacity", "1");
+    await expect(nodes.last()).toHaveCSS("opacity", "0");
+    await travel(0.74);
+    for (const node of await nodes.all()) await expect(node).toHaveCSS("opacity", "1");
+    await travel(0.16);
+    await expect(nodes.first()).toHaveCSS("opacity", "1");
+    await expect(nodes.last()).toHaveCSS("opacity", "0");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(section).not.toHaveClass(/system-cinematic/);
+    for (const node of await nodes.all()) {
+      await expect(node).toHaveCSS("opacity", "1");
+      await expect(node).toHaveCSS("clip-path", "none");
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+  }
+});
+
+test("service diagrams respond to scroll, reverse consistently and respect reduced motion", async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  for (const width of [1440, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await expect(page.locator("#hero-title")).toHaveAttribute("data-hero-ready", "true");
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(300);
+    const rows = page.locator("#services .service-row");
+    const tops = await rows.evaluateAll((elements) =>
+      elements.map(
+        (el) =>
+          el.getBoundingClientRect().top +
+          scrollY -
+          new DOMMatrix(getComputedStyle(el).transform).m42,
+      ),
+    );
+    for (let i = 0; i < tops.length; i++) {
+      const row = rows.nth(i);
+      const read = () =>
+        row.locator("[data-service-node], [data-service-transfer]").evaluateAll((elements) =>
+          elements.flatMap((el) => {
+            const style = getComputedStyle(el),
+              matrix = new DOMMatrix(style.transform);
+            return [+style.opacity, matrix.a, matrix.d, matrix.e, matrix.f];
+          }),
+        );
+      const travel = async (progress: number) => {
+        await page.evaluate(
+          (y) => {
+            scrollTo({ top: y, behavior: "instant" });
+            dispatchEvent(new Event("portfolio:scroll-restored"));
+          },
+          tops[i] - 900 * 0.82 + 900 * 0.74 * progress,
+        );
+        await page.waitForTimeout(850);
+      };
+      await travel(0.2);
+      const opening = await read();
+      await travel(1);
+      const completed = await read();
+      expect(completed.some((value, index) => Math.abs(value - opening[index]) > 10)).toBe(true);
+      for (const node of await row.locator("[data-service-node]").all())
+        await expect(node).toHaveCSS("opacity", "1");
+      await expect(row.locator("h3")).toHaveCSS("opacity", "1");
+      await travel(0.2);
+      const reversed = await read();
+      expect(
+        reversed.every((value, index) => Math.abs(value - opening[index]) < 1),
+        JSON.stringify({ width, diagram: i, opening, reversed }),
+      ).toBe(true);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const node of await page.locator("[data-service-node], [data-service-transfer]").all()) {
+      await expect(node).toHaveCSS("opacity", "1");
+      expect(
+        await node.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).isIdentity),
+      ).toBe(true);
+    }
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+  }
+});
+
+test("hero editorial wipe preserves registered typography, layout and accessible fallbacks", async ({
   page,
 }) => {
   test.setTimeout(60_000);
   for (const width of [1024, 1440, 1920]) {
     await page.setViewportSize({ width, height: width === 1920 ? 1080 : 900 });
     await page.goto("/");
-    const heading = page.locator("#hero-title");
+    const heading = page.locator("#hero-title"),
+      root = page.locator(".hero-text-reveal"),
+      field = page.locator(".hero-reveal-field");
     await expect(heading).toHaveAttribute("data-hero-ready", "true");
-    await expect(page.locator("main h1")).toHaveCount(1);
     await expect(heading).toHaveAccessibleName(/GOOD LEADS\.\s*BETTER SYSTEMS\./);
-    const baseline = await heading.evaluate((el) => {
-      const wrapper = el.parentElement!;
-      const bounds = () => ({
-        heading: el.getBoundingClientRect().toJSON(),
-        bottom: document.querySelector(".hero-bottom")!.getBoundingClientRect().toJSON(),
-      });
-      const before = bounds();
-      wrapper.replaceWith(el);
-      const unwrapped = bounds();
-      el.replaceWith(wrapper);
-      wrapper.prepend(el);
-      return { before, unwrapped };
-    });
-    expect(baseline.before).toEqual(baseline.unwrapped);
-    const box = await heading.boundingBox();
-    expect(box).not.toBeNull();
-    const circle = page.locator(".magnetic-text-circle");
-    await page.mouse.move(box!.x + box!.width * 0.25, box!.y + box!.height * 0.25);
-    await expect(heading).toHaveCSS("cursor", "none");
-    await expect
-      .poll(() => circle.evaluate((el) => el.getBoundingClientRect().width))
-      .toBeCloseTo(width === 1024 ? 220 : width === 1440 ? 270 : 300, 1);
-    const aligned = await page.locator(".magnetic-text-alternate").evaluate((el) => {
-      const heading = document.querySelector("#hero-title")!;
-      const base = heading.getBoundingClientRect(),
-        alt = el.getBoundingClientRect();
-      const a = getComputedStyle(el),
-        b = getComputedStyle(heading);
-      return {
-        dx: alt.x - base.x,
-        dy: alt.y - base.y,
-        width: alt.width - base.width,
-        height: alt.height - base.height,
-        font: [
-          "fontFamily",
-          "fontSize",
-          "fontWeight",
-          "letterSpacing",
-          "lineHeight",
-          "textAlign",
-        ].every(
-          (key) => a[key as keyof CSSStyleDeclaration] === b[key as keyof CSSStyleDeclaration],
-        ),
-        lines: [...el.querySelectorAll(":scope > .line-mask")].map((line) => line.textContent),
-      };
-    });
-    for (const delta of [aligned.dx, aligned.dy, aligned.width, aligned.height])
-      expect(Math.abs(delta)).toBeLessThan(1);
-    expect(aligned.font).toBe(true);
-    expect(aligned.lines).toEqual(["LESS CHAOS.", "MORE CONTROL."]);
-    for (const x of [box!.x + 1, box!.x + box!.width - 1]) {
-      await page.mouse.move(x, box!.y + box!.height / 2);
+    await expect(page.locator("main h1")).toHaveCount(1);
+    for (const slice of await page.locator(".hero-shutter-slice").all()) {
+      await expect(slice).toHaveCSS("opacity", "0");
+      await expect(slice).toHaveCSS("transform", "none");
+    }
+    const baseline = await heading.boundingBox();
+    const box = baseline!;
+    for (const fraction of [0.25, 0.8, 0.35, 0.6, 0.98]) {
+      await page.mouse.move(box.x + box.width * fraction, box.y + box.height * 0.5);
       await expect
-        .poll(() =>
-          circle.evaluate((el) => {
-            const rect = el.getBoundingClientRect();
-            return rect.left >= -1 && rect.right <= innerWidth + 1;
-          }),
-        )
-        .toBe(true);
-      const registration = await page.locator(".magnetic-text-alternate").evaluate((el) => {
-        const a = el.getBoundingClientRect();
-        const b = document.querySelector("#hero-title")!.getBoundingClientRect();
-        return [a.x - b.x, a.y - b.y];
+        .poll(async () => +((await root.getAttribute("data-reveal-progress")) ?? 0))
+        .toBeCloseTo(fraction >= 0.96 ? 1 : fraction, 2);
+      const aligned = await page.locator(".hero-reveal-copy").evaluate((el) => {
+        const h = document.querySelector("#hero-title")!;
+        const a = el.getBoundingClientRect(),
+          b = h.getBoundingClientRect();
+        const sa = getComputedStyle(el),
+          sb = getComputedStyle(h);
+        return {
+          deltas: [a.x - b.x, a.y - b.y, a.width - b.width, a.height - b.height],
+          font: ["fontFamily", "fontSize", "fontWeight", "letterSpacing", "lineHeight"].every(
+            (key) => sa[key as keyof CSSStyleDeclaration] === sb[key as keyof CSSStyleDeclaration],
+          ),
+        };
       });
-      expect(registration.every((delta) => Math.abs(delta) < 1)).toBe(true);
+      expect(aligned.deltas.every((d) => Math.abs(d) < 1)).toBe(true);
+      expect(aligned.font).toBe(true);
+      expect(await heading.boundingBox()).toEqual(baseline);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
     }
-    for (const fraction of [0.3, 0.35, 0.8, 0.15, 0.9]) {
-      await page.mouse.move(box!.x + box!.width * fraction, box!.y + box!.height * 0.65);
-      await page.waitForTimeout(50);
-    }
-    expect(await heading.evaluate((el) => el.getBoundingClientRect().toJSON())).toEqual(
-      baseline.before.heading,
-    );
-    await page.mouse.move(4, 4);
-    await expect.poll(() => circle.evaluate((el) => el.getBoundingClientRect().width)).toBe(0);
-    await expect(heading).not.toHaveCSS("cursor", "none");
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
-    ).toBeLessThanOrEqual(1);
+    await expect(field).toHaveAttribute("aria-hidden", "true");
+    await expect(page.locator(".hero-reveal-copy")).toHaveText(/LESS CHAOS\.MORE CONTROL\./);
+    await page.mouse.move(2, 2);
+    await expect(root).not.toHaveAttribute("data-reveal-active", "true");
+    await expect(heading).not.toHaveAttribute("data-reveal-hover", "true");
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.mouse.move(box!.x + 100, box!.y + 60);
-    await expect(circle).toHaveCSS("display", "none");
-    await expect(heading).not.toHaveCSS("cursor", "none");
+    await expect(field).toHaveCSS("display", "none");
+    await expect(page.locator(".hero-shutter-slices").first()).toHaveCSS("display", "none");
     await page.emulateMedia({ reducedMotion: "no-preference" });
   }
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
-  await expect(page.locator(".magnetic-text-circle")).toHaveCSS("display", "none");
-  await expect(page.locator("#hero-title")).not.toHaveCSS("cursor", "none");
+  await expect(page.locator(".hero-reveal-field")).toHaveCSS("display", "none");
   await page.locator('.hero-copy a[href="/work"]').focus();
   await expect(page.locator('.hero-copy a[href="/work"]')).toBeFocused();
 });
-
 test("hero portal reveals What I Build and reverses without changing the later workflow boundary", async ({
   page,
 }) => {

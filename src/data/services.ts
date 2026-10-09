@@ -1,24 +1,37 @@
-export const services = [
+export type ServiceVisual = "pipeline" | "workflow" | "website" | "integration";
+
+type Service = {
+  title: string;
+  description: string;
+  details: string;
+  visual: ServiceVisual;
+};
+
+export const services: readonly Service[] = [
   {
     title: "CRM setup & pipelines",
+    visual: "pipeline",
     description:
       "GoHighLevel CRM setup, custom fields, tags, and opportunity pipelines that give every lead a place and a next step.",
     details: "CRM SETUP / PIPELINES / LEAD TRACKING",
   },
   {
     title: "Workflow automation",
+    visual: "workflow",
     description:
       "GoHighLevel workflow automation for lead routing, email and SMS follow-up, calendars, appointment flows, and internal notifications.",
     details: "WORKFLOWS / FOLLOW-UP / CALENDARS",
   },
   {
     title: "Websites & funnels",
+    visual: "website",
     description:
       "GoHighLevel websites, funnels, forms, surveys, and WordPress landing pages built around a clear customer journey.",
     details: "LANDING PAGES / FORMS / FUNNELS",
   },
   {
     title: "APIs & integrations",
+    visual: "integration",
     description:
       "Make.com scenarios, REST APIs, and webhooks that map and move data between the tools your business already uses.",
     details: "MAKE.COM / API / WEBHOOKS",

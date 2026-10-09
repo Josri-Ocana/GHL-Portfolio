@@ -1,0 +1,46 @@
+.hero-shutter-line {
+  position: relative;
+}
+.hero-shutter-slices {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hero-shutter-slice {
+  position: absolute;
+  inset: 0;
+  display: block;
+  padding: 0.025em 0 0.095em;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.hero-shutter-slice:nth-child(1) {
+  clip-path: inset(0 0 65% 0);
+}
+.hero-shutter-slice:nth-child(2) {
+  clip-path: inset(35% 0 35% 0);
+}
+.hero-shutter-slice:nth-child(3) {
+  clip-path: inset(65% 0 0 0);
+}
+.hero-shutter-slice > span > span {
+  display: inline-block;
+}
+.hero-identity-name {
+  display: block;
+  font-family: var(--font-display), Impact, sans-serif;
+  font-size: 24px;
+  line-height: 1.15;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+}
+.hero-identity-role {
+  display: block;
+  max-width: 240px;
+}
+@media (prefers-reduced-motion: reduce), (max-width: 699px) {
+  .hero-shutter-line > .hero-shutter-slices {
+    display: none;
+  }
+}

@@ -6,13 +6,17 @@ export function systemTimeline(root: HTMLElement, { desktop, tablet }: MotionCon
   const paths = Array.from(root.querySelectorAll<SVGPathElement>(".system-lines path"));
   const core = root.querySelector(".system-core");
   const conclusion = root.querySelector(".system-conclusion");
+  const progress = Array.from(root.querySelectorAll<HTMLElement>("[data-system-progress]"));
+  const pulse = root.querySelector(".system-core-pulse");
+  const sequence = root.querySelector(".system-sequence");
   const pin = (desktop || tablet) && root.offsetHeight < window.innerHeight - 16;
   if (!pin) {
     nodes.forEach((node, i) =>
       gsap.from(node, {
         opacity: 0,
-        y: 30,
-        duration: 0.65,
+        y: 36,
+        clipPath: "inset(0 0 100% 0)",
+        duration: 0.8,
         delay: (i % 2) * 0.08,
         ease: motion.ease,
         clearProps: "all",
@@ -44,10 +48,12 @@ export function systemTimeline(root: HTMLElement, { desktop, tablet }: MotionCon
   const strength = desktop ? 1.3 : 1;
   gsap.set(nodes, {
     opacity: 0,
-    scale: (i) => (i % 2 ? 0.72 : 0.66),
+    scale: 0.78,
+    clipPath: "inset(0 0 100% 0)",
     x: (i) => origins[i][0] * strength,
     y: (i) => origins[i][1] * strength,
   });
+  gsap.set(progress, { scaleX: 0 });
   paths.forEach((path) => {
     const length = path.getTotalLength();
     gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
@@ -74,11 +80,40 @@ export function systemTimeline(root: HTMLElement, { desktop, tablet }: MotionCon
     const time = 0.8 + i * 0.8 + (i >= 3 ? 0.8 : 0);
     timeline
       .to(paths[i], { strokeDashoffset: 0, duration: 0.5, ease: "none" }, time)
+      .to(paths[i], { stroke: "#c65a24", duration: 0.12 }, time)
       .to(
         node,
-        { x: 0, y: 0, opacity: 1, scale: 1, duration: 0.65, ease: "power2.out" },
+        {
+          x: 0,
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          clipPath: "inset(0 0 0% 0)",
+          duration: 0.6,
+          ease: "power3.out",
+        },
         time + 0.12,
       )
+      .to(node, { borderColor: "#c65a24", backgroundColor: "#24201d", duration: 0.2 }, time + 0.12)
+      .to(
+        node.querySelector(".system-node-symbol"),
+        { color: "#c65a24", duration: 0.2 },
+        time + 0.12,
+      )
+      .to(progress[i], { scaleX: 1, duration: 0.65, ease: "none" }, time)
+      .fromTo(
+        pulse,
+        { scale: 1, opacity: 0.7 },
+        { scale: 1.2, opacity: 0, duration: 0.65, immediateRender: false, ease: "power2.out" },
+        time,
+      )
+      .to(node, { borderColor: "#666666", backgroundColor: "#181818", duration: 0.25 }, time + 0.78)
+      .to(
+        node.querySelector(".system-node-symbol"),
+        { color: "#aaaaaa", duration: 0.25 },
+        time + 0.78,
+      )
+      .to(paths[i], { stroke: "#777777", duration: 0.25 }, time + 0.78)
       .addLabel(`connected-${i + 1}`, time + 0.77);
   });
   timeline
@@ -92,6 +127,7 @@ export function systemTimeline(root: HTMLElement, { desktop, tablet }: MotionCon
   timeline
     .to(core, { scale: 1, duration: 1.1 }, 6.4)
     .addLabel("ecosystem")
+    .to(sequence, { opacity: 0, y: 12, duration: 0.4 }, ">.35")
     .to(
       nodes,
       {
@@ -103,7 +139,7 @@ export function systemTimeline(root: HTMLElement, { desktop, tablet }: MotionCon
         duration: 0.7,
         ease: "power2.in",
       },
-      ">.35",
+      "<",
     )
     .to(
       paths,
